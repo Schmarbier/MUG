@@ -1,13 +1,13 @@
-# PRD-001: PersonalFinance — visor de financias personales
+# PRD-001: PersonalFinance — visor de finanzas personales
 
 ## Contexto y Problema
 Personalmente los gastos no los manejo con nada, puedo pagar efectivo, credito, debito, ahorros y no tengo algo sencillo para ver los gastos/ahorros que voy teniendo en el mes.
 
 ## Objetivos
-A partir de un mensaje de WhatsApp/Telegram, un Bot debe obtener ese mensaje y clasificar el gasto como un movimiento de una categoria.
+A partir de un mensaje de Telegram, un Bot debe obtener ese mensaje y clasificar el gasto como un movimiento de una categoria.
 
 ## Requerimientos Funcionales
-- RF-01: El sistema debe poder leer mensajes enviados por WPP/WhatsApp y guardarlos.
+- RF-01: El sistema debe poder leer mensajes enviados por Telegram y guardarlos.
 - RF-02: Se debe poder crear una categoria, poniendole Titulo + Descripcion
 - RF-03: Cada mensaje debe ser leído por un Agente y este lo marque como procesado y clasifique como un movimiento a partir de las categorias hechas.
 - RF-04: Se debe poder mostrar un resumen mensual por categoria.
@@ -36,6 +36,6 @@ A partir de un mensaje de WhatsApp/Telegram, un Bot debe obtener ese mensaje y c
 - No tiene sistema de usuarios, Canal via WhatsApp, Respuesta de bot al mensaje enviado por el usuario. 
 
 ## Riesgos y Dependencias
-- Riesgo: La IA puede categorizar mal el movimiento -> mitigación: (RNF-07) Si el usuario mira que el mensaje "$100 compra super" fue categorizado como "hobby" o ve que un movimiento tiene bajo accuracy, puede editarlo por la categoria correspondiente.
+- Riesgo: La IA puede categorizar mal el movimiento -> mitigación: (RF-07, RNF-01) Si el usuario mira que el mensaje "$100 compra super" fue categorizado como "hobby" o ve que un movimiento tiene bajo accuracy, puede editarlo por la categoria correspondiente.
 - Riesgo: El Bot que lee los mensajes puede guardar los mismos mensajes una y otra vez, dando asi, mensajes duplicados por cada corrida -> mitigacion: (RF-03) Por cada mensaje que se haya creado correctamente el movimiento se lo debe guardar como procesado = true.
 - Dependencia: Modelo de IA via API Ollama local, instrucciones .md al agente categorizador, API Telegram, SQLite.
