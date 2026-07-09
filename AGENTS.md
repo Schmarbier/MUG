@@ -10,6 +10,19 @@ clasifica como movimientos (ingreso/egreso) por categoría, con resumen mensual.
 - Telegram.Bot (canal de mensajes) · OllamaSharp (cliente del modelo).
 - Ollama corre aparte: modelo `llama3.1` local, configurable vía env `OLLAMA_MODEL`.
 
+## Configuración / secretos
+El token del bot de Telegram **no se commitea**. Se lee de `IConfiguration` con la clave
+`TelegramBotToken`, así que puede venir de User Secrets (dev local) o de variable de entorno.
+No usar `.env`.
+
+Dev local (una sola vez, desde el proyecto del bot):
+```
+dotnet user-secrets set "TelegramBotToken" "TU_TOKEN"
+```
+El valor queda fuera del repo (en `~/.microsoft/usersecrets/`). En `appsettings.json` la clave
+queda vacía, solo como documentación de que existe. Alternativa: exportar `TelegramBotToken`
+como variable de entorno. Ídem `OLLAMA_MODEL`.
+
 ## Cómo correr
 Prerequisito — Ollama levantado con el modelo:
 ```
