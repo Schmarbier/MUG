@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.9" />
     <PackageReference Include="OllamaSharp" Version="5.4.25" />
+    <!-- Pisa la versión transitiva 2.1.11 (CVE-2025-6965, SQLite < 3.50.2). Quitar cuando EF Core la traiga parcheada. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageReference Include="Telegram.Bot" Version="22.10.1.1" />
   </ItemGroup>
 
