@@ -5,7 +5,8 @@ Visor de finanzas personales mono-usuario: un bot lee mensajes de Telegram y un 
 clasifica como movimientos (ingreso/egreso) por categoría, con resumen mensual.
 
 ## Stack
-- .NET 10 — dos procesos: `PersonalFinance.Bot` (ingesta Telegram + agente clasificador) y `PersonalFinance.Web` (API/web del resumen).
+- .NET 10 — dos procesos: `PersonalFinance.Bot` (ingesta Telegram + agente clasificador) y `PersonalFinance.Web` (visor del resumen mensual).
+- `PersonalFinance.Web` es una **Blazor Web App con render mode Static SSR** por defecto. El resumen se renderiza en el server (sin circuito ni WASM); las futuras pantallas interactivas (recategorizar/editar movimientos — RF-16, RF-28, RF-32) se habilitan por componente con `@rendermode InteractiveServer`, sin reescribir.
 - EF Core 10 + SQLite (persistencia).
 - Telegram.Bot (canal de mensajes) · OllamaSharp (cliente del modelo).
 - Ollama corre aparte: modelo `llama3.1` local, configurable vía env `OLLAMA_MODEL`.
@@ -36,7 +37,7 @@ dotnet restore
 Levantar (una terminal por proceso):
 ```
 dotnet run --project src/PersonalFinance.Bot   # bot + clasificador
-dotnet run --project src/PersonalFinance.Web   # API / resumen mensual
+dotnet run --project src/PersonalFinance.Web   # Blazor (Static SSR) — resumen mensual
 ```
 Tests:
 ```
