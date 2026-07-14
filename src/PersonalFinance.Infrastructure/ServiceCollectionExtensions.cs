@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using OllamaSharp;
 using PersonalFinance.Domain;
 
 namespace PersonalFinance.Infrastructure;
@@ -18,6 +19,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepositorioCategorias, RepositorioCategorias>();
         services.AddScoped<IRepositorioMonedas, RepositorioMonedas>();
         services.AddScoped<IRepositorioMovimientos, RepositorioMovimientos>();
+        return services;
+    }
+
+    // Registra el pipeline de clasificación: agente Ollama + servicios de dominio.
+    public static IServiceCollection AgregarClasificacion(
+        this IServiceCollection services, string ollamaUrl, string modelo)
+    {
+        services.AddSingleton<IOllamaApiClient>(_ => new OllamaApiClient(new Uri(ollamaUrl), modelo));
+        services.AddScoped<IAgenteClasificador, AgenteClasificadorOllama>();
+        services.AddScoped<ServicioClasificacion>();
+        services.AddScoped<ServicioProcesamiento>();
         return services;
     }
 }

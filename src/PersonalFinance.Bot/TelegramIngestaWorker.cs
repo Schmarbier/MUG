@@ -52,6 +52,14 @@ public class TelegramIngestaWorker : BackgroundService
 
         _logger.LogInformation("[ingesta] msg {MessageId} chat {ChatId}: {Resultado}",
             mensaje.MessageId, mensaje.Chat.Id, resultado);
+
+        // Recién ingerido => clasificarlo (y cualquier otro pendiente) contra el modelo.
+        if (resultado == ResultadoIngesta.Guardado)
+        {
+            var procesamiento = scope.ServiceProvider.GetRequiredService<ServicioProcesamiento>();
+            var procesados = await procesamiento.ProcesarPendientesAsync(ct);
+            _logger.LogInformation("[procesador] {Procesados} mensaje(s) pendiente(s) procesado(s)", procesados);
+        }
     }
 
     private Task HandleErrorAsync(ITelegramBotClient bot, Exception ex, CancellationToken ct)

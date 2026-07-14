@@ -15,7 +15,12 @@ if (string.IsNullOrWhiteSpace(token))
 // Chat autorizado del dueño (RF-02): solo se ingieren mensajes de este chat.
 var chatAutorizado = builder.Configuration.GetValue<long>("TelegramChatAutorizado");
 
+// Ollama corre aparte; modelo configurable por OLLAMA_MODEL (ver AGENTS.md).
+var ollamaUrl = builder.Configuration["OllamaUrl"] ?? "http://localhost:11434";
+var modelo = builder.Configuration["OLLAMA_MODEL"] ?? "llama3.1";
+
 builder.Services.AgregarPersistencia();
+builder.Services.AgregarClasificacion(ollamaUrl, modelo);
 builder.Services.AddScoped(sp => new ServicioIngesta(
     sp.GetRequiredService<IRepositorioMensajes>(), chatAutorizado));
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token));
