@@ -15,6 +15,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<AppDbContext>(o => o.UseSqlite(cadenaConexion ?? CadenaConexionPorDefecto));
         services.AddScoped<IRepositorioMensajes, RepositorioMensajes>();
+        services.AddScoped<IRepositorioCategorias, RepositorioCategorias>();
+        services.AddScoped<IRepositorioMonedas, RepositorioMonedas>();
+        services.AddScoped<IRepositorioMovimientos, RepositorioMovimientos>();
         return services;
     }
 }

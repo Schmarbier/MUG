@@ -19,6 +19,11 @@ public class ServicioIngestaTests
             Guardados.Add(mensaje);
             return Task.CompletedTask;
         }
+
+        // No usados por la ingesta; el puerto los expone para el procesamiento.
+        public Task<IReadOnlyList<Mensaje>> ObtenerNoProcesadosAsync(CancellationToken ct = default)
+            => Task.FromResult<IReadOnlyList<Mensaje>>(Guardados);
+        public Task GuardarCambiosAsync(CancellationToken ct = default) => Task.CompletedTask;
     }
 
     [Fact] // RF-02 / AC-02

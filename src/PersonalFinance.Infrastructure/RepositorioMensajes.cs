@@ -18,4 +18,11 @@ public class RepositorioMensajes : IRepositorioMensajes
         _db.Mensajes.Add(mensaje);
         await _db.SaveChangesAsync(ct);
     }
+
+    // Pendientes = no procesados y sin error; los de error se reprocesan a mano (RF-15),
+    // no en cada corrida, para no reclasificarlos en loop.
+    public async Task<IReadOnlyList<Mensaje>> ObtenerNoProcesadosAsync(CancellationToken ct = default)
+        => await _db.Mensajes.Where(m => !m.Procesado && !m.Error).ToListAsync(ct);
+
+    public Task GuardarCambiosAsync(CancellationToken ct = default) => _db.SaveChangesAsync(ct);
 }
