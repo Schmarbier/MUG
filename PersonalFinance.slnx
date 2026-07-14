@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/PersonalFinance.Bot/PersonalFinance.Bot.csproj" />
     <Project Path="src/PersonalFinance.Domain/PersonalFinance.Domain.csproj" />
     <Project Path="src/PersonalFinance.Infrastructure/PersonalFinance.Infrastructure.csproj" />
   </Folder>

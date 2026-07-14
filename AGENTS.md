@@ -24,6 +24,14 @@ El valor queda fuera del repo (en `~/.microsoft/usersecrets/`). En `appsettings.
 queda vacía, solo como documentación de que existe. Alternativa: exportar `TelegramBotToken`
 como variable de entorno. Ídem `OLLAMA_MODEL`.
 
+Además, el bot solo ingiere mensajes del **chat autorizado del dueño** (RF-02). El id de ese
+chat se lee de la clave `TelegramChatAutorizado` (mismo mecanismo: user-secrets o variable de
+entorno). En `appsettings.json` queda en `0` como placeholder; con `0` el bot no ingiere nada.
+
+Ambos procesos (`Bot` y `Web`) comparten el archivo SQLite `personalfinance.db`. La cadena de
+conexión es relativa (`Data Source=personalfinance.db`), así que **los dos se corren desde la raíz
+del repo** para que apunten al mismo archivo.
+
 ## Cómo correr
 Prerequisito — Ollama levantado con el modelo:
 ```
