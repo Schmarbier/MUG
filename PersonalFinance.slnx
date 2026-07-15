@@ -3,6 +3,7 @@
     <Project Path="src/PersonalFinance.Bot/PersonalFinance.Bot.csproj" />
     <Project Path="src/PersonalFinance.Domain/PersonalFinance.Domain.csproj" />
     <Project Path="src/PersonalFinance.Infrastructure/PersonalFinance.Infrastructure.csproj" />
+    <Project Path="src/PersonalFinance.Web/PersonalFinance.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PersonalFinance.Domain.Tests/PersonalFinance.Domain.Tests.csproj" />

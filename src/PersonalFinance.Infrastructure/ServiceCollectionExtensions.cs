@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepositorioCategorias, RepositorioCategorias>();
         services.AddScoped<IRepositorioMonedas, RepositorioMonedas>();
         services.AddScoped<IRepositorioMovimientos, RepositorioMovimientos>();
+        services.AddScoped<IConsultaResumen, ConsultaResumen>();
         return services;
     }
 
