@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
@@ -7,14 +9,23 @@ namespace PersonalFinance.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    // Bot y Web DEBEN apuntar al mismo archivo SQLite. Ruta relativa al directorio de
-    // trabajo: ambos procesos se corren desde la raíz del repo (ver AGENTS.md).
-    public const string CadenaConexionPorDefecto = "Data Source=personalfinance.db";
+    // Bot y Web DEBEN apuntar al mismo archivo SQLite. Ruta absoluta y estable en LocalAppData:
+    // NO relativa, porque `dotnet run --project X` usa el directorio del proyecto como working
+    // directory y cada proceso terminaría con su propio archivo.
+    public static string RutaBaseDatosPorDefecto()
+    {
+        var carpeta = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "PersonalFinance");
+        Directory.CreateDirectory(carpeta);
+        return Path.Combine(carpeta, "personalfinance.db");
+    }
 
     public static IServiceCollection AgregarPersistencia(
         this IServiceCollection services, string? cadenaConexion = null)
     {
-        services.AddDbContext<AppDbContext>(o => o.UseSqlite(cadenaConexion ?? CadenaConexionPorDefecto));
+        cadenaConexion ??= $"Data Source={RutaBaseDatosPorDefecto()}";
+        services.AddDbContext<AppDbContext>(o => o.UseSqlite(cadenaConexion));
         services.AddScoped<IRepositorioMensajes, RepositorioMensajes>();
         services.AddScoped<IRepositorioCategorias, RepositorioCategorias>();
         services.AddScoped<IRepositorioMonedas, RepositorioMonedas>();

@@ -28,9 +28,11 @@ Además, el bot solo ingiere mensajes del **chat autorizado del dueño** (RF-02)
 chat se lee de la clave `TelegramChatAutorizado` (mismo mecanismo: user-secrets o variable de
 entorno). En `appsettings.json` queda en `0` como placeholder; con `0` el bot no ingiere nada.
 
-Ambos procesos (`Bot` y `Web`) comparten el archivo SQLite `personalfinance.db`. La cadena de
-conexión es relativa (`Data Source=personalfinance.db`), así que **los dos se corren desde la raíz
-del repo** para que apunten al mismo archivo.
+Ambos procesos (`Bot` y `Web`) comparten el archivo SQLite en una ruta **absoluta y estable**:
+`%LOCALAPPDATA%\PersonalFinance\personalfinance.db`. No es relativa a propósito: `dotnet run
+--project X` usa el directorio del proyecto como working directory, así que una ruta relativa
+haría que cada proceso escribiera su propio archivo. Se puede override pasando otra cadena de
+conexión a `AgregarPersistencia`.
 
 ## Cómo correr
 Prerequisito — Ollama levantado con el modelo:
