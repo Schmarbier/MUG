@@ -20,7 +20,8 @@ Dev local (una sola vez, desde el proyecto del bot):
 ```
 dotnet user-secrets set "TelegramBotToken" "TU_TOKEN"
 ```
-El valor queda fuera del repo (en `~/.microsoft/usersecrets/`). En `appsettings.json` la clave
+El valor queda fuera del repo (en `%APPDATA%\Microsoft\UserSecrets\` en Windows, o
+`~/.microsoft/usersecrets/` en Linux/Mac). En `appsettings.json` la clave
 queda vacía, solo como documentación de que existe. Alternativa: exportar `TelegramBotToken`
 como variable de entorno. Ídem `OLLAMA_MODEL`.
 
