@@ -238,7 +238,7 @@ tests/PersonalFinance.Web.Tests/
 
 ### Implementation for User Story 6
 
-- [ ] T075 [US6] Implementar `MonedaServicio` (crear, editar cotización con rechazo de valores ≤ 0, eliminar/desactivar con excepción de ARS, reactivar) en `src/PersonalFinance.Domain/Servicios/MonedaServicio.cs` (depende de T021; hace pasar T069-T072, T070a)
+- [X] T075 [US6] Implementar `MonedaServicio` (crear, editar cotización con rechazo de valores ≤ 0, eliminar/desactivar con excepción de ARS, reactivar) en `src/PersonalFinance.Domain/Servicios/MonedaServicio.cs` (depende de T021; hace pasar T069-T072, T070a)
 - [ ] T076 [US6] Extender `MovimientoServicio` con edición del tipo de cambio histórico (rechazando valores ≤ 0) y propagación opcional a movimientos de igual moneda y fecha en `src/PersonalFinance.Domain/Servicios/MovimientoServicio.cs` (depende de T067; hace pasar T073, T073a)
 - [ ] T077 [US6] Implementar la página InteractiveServer `/monedas` en `src/PersonalFinance.Web/Components/Pages/Monedas.razor` (depende de T075; hace pasar T074)
 - [ ] T078 [US6] Agregar la confirmación de propagación a `/movimientos/{id}/editar` (depende de T068, T076)
