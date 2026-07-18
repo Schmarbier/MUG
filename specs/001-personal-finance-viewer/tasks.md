@@ -211,7 +211,7 @@ tests/PersonalFinance.Web.Tests/
 ### Implementation for User Story 5
 
 - [X] T067 [US5] Implementar `MovimientoServicio` (editar categoría, tipo, monto y moneda, registrando el tipo de cambio vigente al cambiar de moneda, rechazando monto ≤ 0) en `src/PersonalFinance.Domain/Servicios/MovimientoServicio.cs` (depende de T021; hace pasar T063-T065, T063a)
-- [ ] T068 [US5] Implementar la página InteractiveServer `/movimientos/{id}/editar` en `src/PersonalFinance.Web/Components/Pages/EditarMovimiento.razor` (depende de T067; hace pasar T066)
+- [X] T068 [US5] Implementar la página InteractiveServer `/movimientos/{id}/editar` en `src/PersonalFinance.Web/Components/Pages/EditarMovimiento.razor` (depende de T067; hace pasar T066)
 
 **Checkpoint**: corrección manual operativa de punta a punta — validar con quickstart.md § V12 (primera mitad)
 
