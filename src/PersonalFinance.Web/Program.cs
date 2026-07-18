@@ -35,6 +35,7 @@ builder.Services.AddScoped<IClasificadorDeMensajes>(sp => new OllamaClasificador
 builder.Services.AddScoped<ClasificacionServicio>();
 builder.Services.AddScoped<BandejaErroresServicio>();
 builder.Services.AddScoped<MovimientoServicio>();
+builder.Services.AddScoped<MonedaServicio>();
 
 var app = builder.Build();
 
