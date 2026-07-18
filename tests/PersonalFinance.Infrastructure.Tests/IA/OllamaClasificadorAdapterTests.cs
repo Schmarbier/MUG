@@ -103,11 +103,24 @@ public sealed class OllamaClasificadorAdapterTests
     }
 
     [Fact]
-    public async Task Confianza_bajo_el_umbral_produce_falla_sin_confianza()
+    public async Task Confianza_fuera_de_rango_produce_falla_sin_confianza()
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
                 """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":1.5}""")));
+
+        var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
+
+        var fallida = Assert.IsType<ResultadoClasificacion.Fallida>(resultado);
+        Assert.Equal(MotivoFalla.SinConfianza, fallida.Falla.Motivo);
+    }
+
+    [Fact]
+    public async Task Confianza_bajo_el_umbral_configurado_produce_falla_sin_confianza()
+    {
+        var adaptador = CrearAdaptador((_, _) => Task.FromResult(
+            ManejadorHttpFalso.RespuestaGenerate(
+                """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.3}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
 
@@ -130,6 +143,19 @@ public sealed class OllamaClasificadorAdapterTests
 
         var fallida = Assert.IsType<ResultadoClasificacion.Fallida>(resultado);
         Assert.Equal(MotivoFalla.ClasificadorNoDisponible, fallida.Falla.Motivo);
+    }
+
+    [Fact]
+    public async Task Categoria_vacia_produce_falla_sin_descripcion()
+    {
+        var adaptador = CrearAdaptador((_, _) => Task.FromResult(
+            ManejadorHttpFalso.RespuestaGenerate(
+                """{"monto":2000.00,"tipo":"egreso","categoria":"","moneda":"ARS","confianza":0.92}""")));
+
+        var resultado = await adaptador.ClasificarAsync("2000", Categorias, Monedas);
+
+        var fallida = Assert.IsType<ResultadoClasificacion.Fallida>(resultado);
+        Assert.Equal(MotivoFalla.SinDescripcion, fallida.Falla.Motivo);
     }
 
     [Fact]
