@@ -64,7 +64,7 @@ tests/PersonalFinance.Web.Tests/
 - [X] T012 [P] Crear entidad `Moneda` (Id, Codigo, EsBase, Activa, TipoDeCambio) en `src/PersonalFinance.Domain/Entidades/Moneda.cs`
 - [X] T013 [P] Crear entidad `Mensaje` (Id, IdentificadorCanal, Texto, FechaRecepcionUtc, Procesado, IntentosClasificacion, TieneError, MotivoError) en `src/PersonalFinance.Domain/Entidades/Mensaje.cs`
 - [X] T014 [P] Crear enum `TipoMovimiento` y entidad `Movimiento` (Id, MensajeId, CategoriaId, MonedaId, Monto, Tipo, Fecha, TipoDeCambioHistorico) en `src/PersonalFinance.Domain/Entidades/TipoMovimiento.cs` y `src/PersonalFinance.Domain/Entidades/Movimiento.cs`
-- [ ] T015 Definir los puertos de repositorio `ICategoriaRepositorio`, `IMonedaRepositorio`, `IMensajeRepositorio`, `IMovimientoRepositorio` en `src/PersonalFinance.Domain/Puertos/` (depende de T011-T014)
+- [X] T015 Definir los puertos de repositorio `ICategoriaRepositorio`, `IMonedaRepositorio`, `IMensajeRepositorio`, `IMovimientoRepositorio` en `src/PersonalFinance.Domain/Puertos/` (depende de T011-T014)
 - [ ] T016 Crear `PersonalFinanceDbContext` con los cuatro `DbSet` en `src/PersonalFinance.Infrastructure/Persistencia/PersonalFinanceDbContext.cs` (depende de T011-T014)
 - [ ] T017 [P] Configurar las entidades vía Fluent API con los índices únicos y no únicos de `data-model.md` § Índices en `src/PersonalFinance.Infrastructure/Persistencia/Configuraciones/` (depende de T016; hace pasar T007)
 - [ ] T018 [P] Implementar `MontoValueConverter` y `TipoDeCambioValueConverter` (decimal↔long, factor ×100) en `src/PersonalFinance.Infrastructure/Persistencia/Converters/` (hace pasar T008)
