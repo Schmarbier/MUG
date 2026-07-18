@@ -102,7 +102,7 @@ tests/PersonalFinance.Web.Tests/
 
 ### Implementation for User Story 1
 
-- [ ] T033 [P] [US1] Definir el puerto `IClasificadorDeMensajes` y los tipos `Clasificacion`/`Falla`/`MotivoFalla` de `contracts/clasificador.md` en `src/PersonalFinance.Domain/Puertos/IClasificadorDeMensajes.cs`
+- [X] T033 [P] [US1] Definir el puerto `IClasificadorDeMensajes` y los tipos `Clasificacion`/`Falla`/`MotivoFalla` de `contracts/clasificador.md` en `src/PersonalFinance.Domain/Puertos/IClasificadorDeMensajes.cs`
 - [ ] T034 [US1] Implementar `ClasificacionServicio` (categorías/monedas activas como entrada, default ARS, mapeo de fallas a motivo persistido, contador de intentos) en `src/PersonalFinance.Domain/Servicios/ClasificacionServicio.cs` (depende de T033; hace pasar T025-T030, T030a, T028a)
 - [ ] T035 [US1] Implementar `OllamaClasificadorAdapter` (prompt JSON estricto, esquema, validación, timeout acotado, temperatura baja) en `src/PersonalFinance.Infrastructure/IA/OllamaClasificadorAdapter.cs` (depende de T033; hace pasar T031)
 - [ ] T036 [US1] Implementar `IngestaServicio` (filtra por `TelegramChatAutorizado`, guarda con deduplicación) en `src/PersonalFinance.Bot/Ingesta/IngestaServicio.cs` (depende de T021, T022; hace pasar T024, T032)
