@@ -31,7 +31,10 @@ public abstract record ResultadoClasificacion
     public sealed record Fallida(Falla Falla) : ResultadoClasificacion;
 }
 
-public record Clasificacion(decimal Monto, TipoMovimiento Tipo, string TituloCategoria, string CodigoMoneda);
+/// <summary>
+/// CodigoMoneda es nulo cuando el mensaje no la especifica; el dominio asume la base (FR-008).
+/// </summary>
+public record Clasificacion(decimal Monto, TipoMovimiento Tipo, string TituloCategoria, string? CodigoMoneda);
 
 public record Falla(MotivoFalla Motivo);
 
