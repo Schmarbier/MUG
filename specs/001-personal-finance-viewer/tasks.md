@@ -71,7 +71,7 @@ tests/PersonalFinance.Web.Tests/
 - [X] T019 Generar la migración inicial de EF Core con el seed de ARS en `src/PersonalFinance.Infrastructure/Persistencia/Migraciones/` (depende de T016-T018; hace pasar T009)
 - [X] T020 Implementar el resolutor de cadena de conexión absoluta con override en `src/PersonalFinance.Infrastructure/Persistencia/ConexionSqlite.cs` (hace pasar T010)
 - [X] T021 [P] Implementar los adaptadores EF Core de los cuatro puertos de repositorio en `src/PersonalFinance.Infrastructure/Persistencia/Repositorios/` (depende de T015, T017, T019)
-- [ ] T022 [P] Configurar `TelegramBotToken`, `TelegramChatAutorizado` y `OLLAMA_MODEL` vía `IConfiguration` con placeholders vacíos/`0` en `src/PersonalFinance.Bot/appsettings.json` y `src/PersonalFinance.Web/appsettings.json` (Principio IV)
+- [X] T022 [P] Configurar `TelegramBotToken`, `TelegramChatAutorizado` y `OLLAMA_MODEL` vía `IConfiguration` con placeholders vacíos/`0` en `src/PersonalFinance.Bot/appsettings.json` y `src/PersonalFinance.Web/appsettings.json` (Principio IV)
 - [ ] T023 [P] Implementar el helper de zona horaria `America/Argentina/Buenos_Aires` (persistir UTC, convertir a local al derivar la fecha del movimiento) en `src/PersonalFinance.Domain/Servicios/ZonaHorariaLocal.cs` (R5)
 
 **Checkpoint**: Fundación lista — las historias de usuario pueden empezar, incluso en paralelo
