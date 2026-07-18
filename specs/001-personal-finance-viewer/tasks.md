@@ -179,8 +179,8 @@ tests/PersonalFinance.Web.Tests/
 
 > Escribir estos tests PRIMERO, confirmar que fallan antes de implementar
 
-- [ ] T058 [P] [US4] Test de dominio: mensajes sin monto, sin descripción o con moneda no soportada quedan con el motivo de error correspondiente (FR-010, AC-1, AC-2, AC-3) en `tests/PersonalFinance.Domain.Tests/Servicios/BandejaErroresServicioTests.cs`
-- [ ] T059 [P] [US4] Test de dominio: reprocesar un mensaje en error tras corregir la causa lo deja procesado con su movimiento, sin duplicar uno ya creado (FR-017, AC-5, Edge Case de reproceso) en `tests/PersonalFinance.Domain.Tests/Servicios/BandejaErroresServicioTests.cs`
+- [X] T058 [P] [US4] Test de dominio: mensajes sin monto, sin descripción o con moneda no soportada quedan con el motivo de error correspondiente (FR-010, AC-1, AC-2, AC-3) en `tests/PersonalFinance.Domain.Tests/Servicios/BandejaErroresServicioTests.cs`
+- [X] T059 [P] [US4] Test de dominio: reprocesar un mensaje en error tras corregir la causa lo deja procesado con su movimiento, sin duplicar uno ya creado (FR-017, AC-5, Edge Case de reproceso) en `tests/PersonalFinance.Domain.Tests/Servicios/BandejaErroresServicioTests.cs`
 - [ ] T060 [P] [US4] Test de componente: la página `/errores` lista los mensajes con error y su motivo, y permite reprocesarlos en `tests/PersonalFinance.Web.Tests/Paginas/ErroresPaginaTests.cs`
 
 ### Implementation for User Story 4
