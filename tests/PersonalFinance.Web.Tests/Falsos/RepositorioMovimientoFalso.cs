@@ -34,5 +34,11 @@ public sealed class RepositorioMovimientoFalso : IMovimientoRepositorio
         return Task.CompletedTask;
     }
 
+    public Task EliminarAsync(Movimiento movimiento, CancellationToken ct = default)
+    {
+        Movimientos.Remove(movimiento);
+        return Task.CompletedTask;
+    }
+
     public Task GuardarCambiosAsync(CancellationToken ct = default) => Task.CompletedTask;
 }

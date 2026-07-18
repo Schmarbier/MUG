@@ -42,7 +42,7 @@ public sealed class EditarMovimientoPaginaTests : BunitContext
         };
         _movimientos.Movimientos.Add(_movimiento);
 
-        Services.AddSingleton(new MovimientoServicio(_movimientos, _monedas));
+        Services.AddSingleton(new MovimientoServicio(_movimientos, _monedas, _categorias));
         Services.AddSingleton<ICategoriaRepositorio>(_categorias);
         Services.AddSingleton<IMonedaRepositorio>(_monedas);
         Services.AddSingleton<IMovimientoRepositorio>(_movimientos);
@@ -160,5 +160,31 @@ public sealed class EditarMovimientoPaginaTests : BunitContext
                 parametros.Add(p => p.Id, _movimiento.Id));
 
         Assert.Empty(componente.FindAll("#tipoDeCambioHistorico"));
+    }
+
+    [Fact]
+    public void Editar_fecha_reasigna_el_movimiento_de_mes()
+    {
+        var componente = Render<PaginaEditarMovimiento>(
+            (ComponentParameterCollectionBuilder<PaginaEditarMovimiento> parametros) =>
+                parametros.Add(p => p.Id, _movimiento.Id));
+
+        componente.Find("#fecha").Change("2026-06-30");
+        componente.Find("button:contains('Guardar fecha')").Click();
+
+        Assert.Equal(new DateOnly(2026, 6, 30), _movimiento.Fecha);
+    }
+
+    [Fact]
+    public void Eliminar_el_movimiento_lo_borra_definitivamente()
+    {
+        var componente = Render<PaginaEditarMovimiento>(
+            (ComponentParameterCollectionBuilder<PaginaEditarMovimiento> parametros) =>
+                parametros.Add(p => p.Id, _movimiento.Id));
+
+        componente.Find("button:contains('Eliminar movimiento')").Click();
+
+        Assert.Empty(_movimientos.Movimientos);
+        Assert.Contains("Movimiento no encontrado", componente.Markup);
     }
 }

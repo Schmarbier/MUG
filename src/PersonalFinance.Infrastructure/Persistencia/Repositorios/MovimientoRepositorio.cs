@@ -38,6 +38,12 @@ public class MovimientoRepositorio(PersonalFinanceDbContext contexto) : IMovimie
         return Task.CompletedTask;
     }
 
+    public Task EliminarAsync(Movimiento movimiento, CancellationToken ct = default)
+    {
+        contexto.Movimientos.Remove(movimiento);
+        return Task.CompletedTask;
+    }
+
     public Task GuardarCambiosAsync(CancellationToken ct = default) =>
         contexto.SaveChangesAsync(ct);
 }

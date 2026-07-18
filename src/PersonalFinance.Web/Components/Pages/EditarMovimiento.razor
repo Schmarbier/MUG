@@ -52,6 +52,12 @@ else
         <button @onclick="GuardarMonedaAsync">Guardar moneda</button>
     </div>
 
+    <div>
+        <label for="fecha">Fecha</label>
+        <input id="fecha" type="date" @bind="_fecha" />
+        <button @onclick="GuardarFechaAsync">Guardar fecha</button>
+    </div>
+
     @if (!_esMonedaBaseDelMovimiento)
     {
         <div>
@@ -71,6 +77,10 @@ else
         </div>
     }
 
+    <div>
+        <button @onclick="EliminarMovimientoAsync">Eliminar movimiento</button>
+    </div>
+
     @if (_error is not null)
     {
         <p class="error">@_error</p>
@@ -88,6 +98,7 @@ else
     private int _monedaId;
     private TipoMovimiento _tipo;
     private decimal _monto;
+    private DateOnly _fecha;
     private decimal _tipoDeCambioHistoricoEdicion;
     private bool _esMonedaBaseDelMovimiento;
     private bool _mostrarConfirmacionPropagacion;
@@ -109,6 +120,7 @@ else
             _monedaId = _movimiento.MonedaId;
             _tipo = _movimiento.Tipo;
             _monto = _movimiento.Monto;
+            _fecha = _movimiento.Fecha;
             _tipoDeCambioHistoricoEdicion = _movimiento.TipoDeCambioHistorico ?? 0;
 
             var moneda = await MonedaRepositorio.ObtenerPorIdAsync(_movimiento.MonedaId);
@@ -123,6 +135,10 @@ else
     private Task GuardarMontoAsync() => EjecutarAsync(() => MovimientoServicio.EditarMontoAsync(Id, _monto));
 
     private Task GuardarMonedaAsync() => EjecutarAsync(() => MovimientoServicio.EditarMonedaAsync(Id, _monedaId));
+
+    private Task GuardarFechaAsync() => EjecutarAsync(() => MovimientoServicio.EditarFechaAsync(Id, _fecha));
+
+    private Task EliminarMovimientoAsync() => EjecutarAsync(() => MovimientoServicio.EliminarAsync(Id));
 
     private void PedirConfirmacionPropagacion() => _mostrarConfirmacionPropagacion = true;
 

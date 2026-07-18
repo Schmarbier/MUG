@@ -8,11 +8,12 @@ public sealed class MovimientoServicioTests
 {
     private readonly RepositorioMovimientoFalso _movimientos = new();
     private readonly RepositorioMonedaFalso _monedas = new();
+    private readonly RepositorioCategoriaFalso _categorias = new();
     private readonly MovimientoServicio _servicio;
 
     public MovimientoServicioTests()
     {
-        _servicio = new MovimientoServicio(_movimientos, _monedas);
+        _servicio = new MovimientoServicio(_movimientos, _monedas, _categorias);
     }
 
     private Movimiento AgregarMovimiento(int categoriaId, int monedaId, decimal monto, TipoMovimiento tipo, decimal? tipoDeCambioHistorico = null)
@@ -35,12 +36,46 @@ public sealed class MovimientoServicioTests
     [Fact]
     public async Task Editar_categoria_lo_actualiza_sin_afectar_otros_campos()
     {
+        _categorias.Categorias.Add(new Categoria { Id = 2, Titulo = "Ocio", Descripcion = "d", Activa = true });
         var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 2000.00m, TipoMovimiento.Egreso);
 
         await _servicio.EditarCategoriaAsync(movimiento.Id, categoriaId: 2);
 
         Assert.Equal(2, movimiento.CategoriaId);
         Assert.Equal(2000.00m, movimiento.Monto);
+    }
+
+    [Fact]
+    public async Task Editar_categoria_a_una_inexistente_o_desactivada_se_rechaza()
+    {
+        _categorias.Categorias.Add(new Categoria { Id = 2, Titulo = "Vieja", Descripcion = "d", Activa = false });
+        var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 2000.00m, TipoMovimiento.Egreso);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _servicio.EditarCategoriaAsync(movimiento.Id, categoriaId: 2));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _servicio.EditarCategoriaAsync(movimiento.Id, categoriaId: 999));
+
+        Assert.Equal(1, movimiento.CategoriaId);
+    }
+
+    [Fact]
+    public async Task Editar_fecha_reasigna_el_movimiento_sin_alterar_otros_campos()
+    {
+        var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 2000.00m, TipoMovimiento.Egreso);
+
+        await _servicio.EditarFechaAsync(movimiento.Id, new DateOnly(2026, 6, 30));
+
+        Assert.Equal(new DateOnly(2026, 6, 30), movimiento.Fecha);
+        Assert.Equal(2000.00m, movimiento.Monto);
+    }
+
+    [Fact]
+    public async Task Eliminar_un_movimiento_lo_borra_definitivamente()
+    {
+        var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 2000.00m, TipoMovimiento.Egreso);
+
+        await _servicio.EliminarAsync(movimiento.Id);
+
+        Assert.Null(await _movimientos.ObtenerPorIdAsync(movimiento.Id));
     }
 
     [Fact]

@@ -11,5 +11,6 @@ public interface IMovimientoRepositorio
     Task<bool> ExistePorMonedaAsync(int monedaId, CancellationToken ct = default);
     Task<bool> ExistePorMensajeAsync(int mensajeId, CancellationToken ct = default);
     Task AgregarAsync(Movimiento movimiento, CancellationToken ct = default);
+    Task EliminarAsync(Movimiento movimiento, CancellationToken ct = default);
     Task GuardarCambiosAsync(CancellationToken ct = default);
 }

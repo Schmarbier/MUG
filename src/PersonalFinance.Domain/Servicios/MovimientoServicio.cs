@@ -4,12 +4,39 @@ using PersonalFinance.Domain.Puertos;
 namespace PersonalFinance.Domain.Servicios;
 
 /// <summary>Corrección manual de un movimiento existente (US5).</summary>
-public class MovimientoServicio(IMovimientoRepositorio movimientoRepositorio, IMonedaRepositorio monedaRepositorio)
+public class MovimientoServicio(
+    IMovimientoRepositorio movimientoRepositorio,
+    IMonedaRepositorio monedaRepositorio,
+    ICategoriaRepositorio categoriaRepositorio)
 {
     public async Task EditarCategoriaAsync(int movimientoId, int categoriaId, CancellationToken ct = default)
     {
         var movimiento = await ObtenerAsync(movimientoId, ct);
+        var categoria = await categoriaRepositorio.ObtenerPorIdAsync(categoriaId, ct);
+        // Una categoría inexistente o desactivada bloquea toda asignación nueva, tanto de la
+        // clasificación automática (FR-031) como de la corrección manual (FR-018).
+        if (categoria is null || !categoria.Activa)
+        {
+            throw new InvalidOperationException("La categoría no existe o está desactivada.");
+        }
+
         movimiento.CategoriaId = categoriaId;
+        await movimientoRepositorio.GuardarCambiosAsync(ct);
+    }
+
+    /// <summary>Reasigna el movimiento al mes de la nueva fecha, sin alterar sus demás campos (FR-020a).</summary>
+    public async Task EditarFechaAsync(int movimientoId, DateOnly fecha, CancellationToken ct = default)
+    {
+        var movimiento = await ObtenerAsync(movimientoId, ct);
+        movimiento.Fecha = fecha;
+        await movimientoRepositorio.GuardarCambiosAsync(ct);
+    }
+
+    /// <summary>Eliminación definitiva; no afecta al Mensaje de origen ni a otros movimientos (FR-023a).</summary>
+    public async Task EliminarAsync(int movimientoId, CancellationToken ct = default)
+    {
+        var movimiento = await ObtenerAsync(movimientoId, ct);
+        await movimientoRepositorio.EliminarAsync(movimiento, ct);
         await movimientoRepositorio.GuardarCambiosAsync(ct);
     }
 
