@@ -69,7 +69,7 @@ tests/PersonalFinance.Web.Tests/
 - [X] T017 [P] Configurar las entidades vía Fluent API con los índices únicos y no únicos de `data-model.md` § Índices en `src/PersonalFinance.Infrastructure/Persistencia/Configuraciones/` (depende de T016; hace pasar T007)
 - [X] T018 [P] Implementar `MontoValueConverter` y `TipoDeCambioValueConverter` (decimal↔long, factor ×100) en `src/PersonalFinance.Infrastructure/Persistencia/Converters/` (hace pasar T008)
 - [ ] T019 Generar la migración inicial de EF Core con el seed de ARS en `src/PersonalFinance.Infrastructure/Persistencia/Migraciones/` (depende de T016-T018; hace pasar T009)
-- [ ] T020 Implementar el resolutor de cadena de conexión absoluta con override en `src/PersonalFinance.Infrastructure/Persistencia/ConexionSqlite.cs` (hace pasar T010)
+- [X] T020 Implementar el resolutor de cadena de conexión absoluta con override en `src/PersonalFinance.Infrastructure/Persistencia/ConexionSqlite.cs` (hace pasar T010)
 - [ ] T021 [P] Implementar los adaptadores EF Core de los cuatro puertos de repositorio en `src/PersonalFinance.Infrastructure/Persistencia/Repositorios/` (depende de T015, T017, T019)
 - [ ] T022 [P] Configurar `TelegramBotToken`, `TelegramChatAutorizado` y `OLLAMA_MODEL` vía `IConfiguration` con placeholders vacíos/`0` en `src/PersonalFinance.Bot/appsettings.json` y `src/PersonalFinance.Web/appsettings.json` (Principio IV)
 - [ ] T023 [P] Implementar el helper de zona horaria `America/Argentina/Buenos_Aires` (persistir UTC, convertir a local al derivar la fecha del movimiento) en `src/PersonalFinance.Domain/Servicios/ZonaHorariaLocal.cs` (R5)
