@@ -90,4 +90,48 @@ public sealed class MovimientoServicioTests
         Assert.Equal(1, movimiento.MonedaId);
         Assert.Equal(1450m, movimiento.TipoDeCambioHistorico);
     }
+
+    [Fact]
+    public async Task Editar_tipo_de_cambio_historico_con_confirmacion_propaga_a_movimientos_de_igual_moneda_y_fecha()
+    {
+        var fecha = new DateOnly(2026, 7, 10);
+        var editado = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
+        editado.Fecha = fecha;
+        var otro1 = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 200.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
+        otro1.Fecha = fecha;
+        var otro2 = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 300.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1480m);
+        otro2.Fecha = fecha;
+
+        await _servicio.EditarTipoDeCambioHistoricoAsync(editado.Id, 1450m, propagar: true);
+
+        Assert.Equal(1450m, editado.TipoDeCambioHistorico);
+        Assert.Equal(1450m, otro1.TipoDeCambioHistorico);
+        Assert.Equal(1450m, otro2.TipoDeCambioHistorico); // se aplica sin importar su valor previo (AC-7.a)
+    }
+
+    [Fact]
+    public async Task Editar_tipo_de_cambio_historico_sin_confirmar_solo_afecta_al_editado()
+    {
+        var fecha = new DateOnly(2026, 7, 10);
+        var editado = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
+        editado.Fecha = fecha;
+        var otro = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 200.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
+        otro.Fecha = fecha;
+
+        await _servicio.EditarTipoDeCambioHistoricoAsync(editado.Id, 1450m, propagar: false);
+
+        Assert.Equal(1450m, editado.TipoDeCambioHistorico);
+        Assert.Equal(1500m, otro.TipoDeCambioHistorico);
+    }
+
+    [Fact]
+    public async Task Editar_tipo_de_cambio_historico_a_valor_menor_o_igual_a_cero_se_rechaza_sin_modificar_ni_propagar()
+    {
+        var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _servicio.EditarTipoDeCambioHistoricoAsync(movimiento.Id, 0m, propagar: true));
+
+        Assert.Equal(1500m, movimiento.TipoDeCambioHistorico);
+    }
 }
