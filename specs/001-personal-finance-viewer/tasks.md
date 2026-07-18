@@ -53,10 +53,10 @@ tests/PersonalFinance.Web.Tests/
 
 > Escribir estos tests PRIMERO, confirmar que fallan antes de implementar
 
-- [ ] T007 [P] Test de integración: `PersonalFinanceDbContext` crea el esquema con los índices únicos de `data-model.md` § Índices (`Categoria.Titulo`, `Moneda.Codigo`, `Mensaje.IdentificadorCanal`) — un insert duplicado sobre cualquiera de los tres lanza excepción — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/EsquemaTests.cs`
-- [ ] T008 [P] Test de integración: el `ValueConverter` de `Monto`/`TipoDeCambio` hace round-trip decimal↔INTEGER sin pérdida para valores con 2 decimales (R1) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/ConvertersTests.cs`
-- [ ] T009 Test de integración: la migración inicial deja sembrada la moneda ARS con `EsBase = true`, `Activa = true` y `TipoDeCambio = null` (FR-032) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/SeedTests.cs`
-- [ ] T010 [P] Test de integración: el resolutor de cadena de conexión arma la ruta absoluta `%LOCALAPPDATA%\PersonalFinance\personalfinance.db` y respeta un override explícito (R10, restricción de la constitución) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/ConexionSqliteTests.cs`
+- [X] T007 [P] Test de integración: `PersonalFinanceDbContext` crea el esquema con los índices únicos de `data-model.md` § Índices (`Categoria.Titulo`, `Moneda.Codigo`, `Mensaje.IdentificadorCanal`) — un insert duplicado sobre cualquiera de los tres lanza excepción — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/EsquemaTests.cs`
+- [X] T008 [P] Test de integración: el `ValueConverter` de `Monto`/`TipoDeCambio` hace round-trip decimal↔INTEGER sin pérdida para valores con 2 decimales (R1) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/ConvertersTests.cs`
+- [X] T009 Test de integración: la migración inicial deja sembrada la moneda ARS con `EsBase = true`, `Activa = true` y `TipoDeCambio = null` (FR-032) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/SeedTests.cs`
+- [X] T010 [P] Test de integración: el resolutor de cadena de conexión arma la ruta absoluta `%LOCALAPPDATA%\PersonalFinance\personalfinance.db` y respeta un override explícito (R10, restricción de la constitución) — en `tests/PersonalFinance.Infrastructure.Tests/Persistencia/ConexionSqliteTests.cs`
 
 ### Implementación Foundational
 
