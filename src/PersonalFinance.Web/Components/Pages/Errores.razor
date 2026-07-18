@@ -1,0 +1,51 @@
+@page "/errores"
+@rendermode InteractiveServer
+@inject BandejaErroresServicio BandejaErroresServicio
+
+<PageTitle>Mensajes con error</PageTitle>
+
+<h1>Mensajes con error</h1>
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+
+<table>
+    <thead>
+        <tr><th>Texto</th><th>Motivo</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var mensaje in _mensajes)
+        {
+            <tr>
+                <td>@mensaje.Texto</td>
+                <td>@mensaje.MotivoError</td>
+                <td><button @onclick="() => ReprocesarAsync(mensaje.Id)">Reprocesar</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private IReadOnlyList<Mensaje> _mensajes = [];
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await CargarAsync();
+
+    private async Task CargarAsync() => _mensajes = await BandejaErroresServicio.ListarAsync();
+
+    private async Task ReprocesarAsync(int id)
+    {
+        _error = null;
+        try
+        {
+            await BandejaErroresServicio.ReprocesarAsync(id);
+            await CargarAsync();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

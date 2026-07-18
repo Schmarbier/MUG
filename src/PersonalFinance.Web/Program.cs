@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using OllamaSharp;
 using PersonalFinance.Domain.Puertos;
 using PersonalFinance.Domain.Servicios;
+using PersonalFinance.Infrastructure.IA;
 using PersonalFinance.Infrastructure.Persistencia;
 using PersonalFinance.Infrastructure.Persistencia.Repositorios;
 using PersonalFinance.Web.Components;
@@ -21,6 +23,17 @@ builder.Services.AddScoped<IMovimientoRepositorio, MovimientoRepositorio>();
 
 builder.Services.AddScoped<ResumenMensualServicio>();
 builder.Services.AddScoped<CategoriaServicio>();
+
+builder.Services.AddSingleton<IOllamaApiClient>(_ =>
+    new OllamaApiClient(new Uri("http://localhost:11434"), builder.Configuration["OLLAMA_MODEL"] ?? "llama3.1"));
+
+builder.Services.AddScoped<IClasificadorDeMensajes>(sp => new OllamaClasificadorAdapter(
+    sp.GetRequiredService<IOllamaApiClient>(),
+    builder.Configuration["OLLAMA_MODEL"] ?? "llama3.1",
+    timeout: TimeSpan.FromSeconds(4.5)));
+
+builder.Services.AddScoped<ClasificacionServicio>();
+builder.Services.AddScoped<BandejaErroresServicio>();
 
 var app = builder.Build();
 
