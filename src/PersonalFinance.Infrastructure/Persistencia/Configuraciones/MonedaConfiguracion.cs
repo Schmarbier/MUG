@@ -15,5 +15,15 @@ public class MonedaConfiguracion : IEntityTypeConfiguration<Moneda>
 
         // Único (FR-033).
         builder.HasIndex(m => m.Codigo).IsUnique();
+
+        // Moneda base preexistente, sin carga del usuario (FR-032).
+        builder.HasData(new Moneda
+        {
+            Id = 1,
+            Codigo = "ARS",
+            EsBase = true,
+            Activa = true,
+            TipoDeCambio = null
+        });
     }
 }
