@@ -153,11 +153,11 @@ tests/PersonalFinance.Web.Tests/
 
 > Escribir estos tests PRIMERO, confirmar que fallan antes de implementar
 
-- [ ] T050 [P] [US3] Test de dominio: crear una categoría con título único la deja activa con ese título y descripción (AC-1) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
-- [ ] T051 [P] [US3] Test de dominio: crear o editar con un título ya existente se rechaza con error, también contra categorías desactivadas (FR-024, FR-026, AC-2, AC-4) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
-- [ ] T052 [P] [US3] Test de dominio: eliminar una categoría sin movimientos la borra; con movimientos la desactiva en lugar de borrarla (FR-028, FR-029, AC-6, AC-7) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
-- [ ] T053 [P] [US3] Test de dominio: editar el título o la descripción de una categoría desactivada conserva su estado "desactivada" (FR-026, AC-9) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
-- [ ] T054 [P] [US3] Test de dominio: reactivar una categoría desactivada la vuelve disponible para clasificar nuevos movimientos (FR-030, FR-031, AC-10) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
+- [X] T050 [P] [US3] Test de dominio: crear una categoría con título único la deja activa con ese título y descripción (AC-1) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
+- [X] T051 [P] [US3] Test de dominio: crear o editar con un título ya existente se rechaza con error, también contra categorías desactivadas (FR-024, FR-026, AC-2, AC-4) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
+- [X] T052 [P] [US3] Test de dominio: eliminar una categoría sin movimientos la borra; con movimientos la desactiva en lugar de borrarla (FR-028, FR-029, AC-6, AC-7) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
+- [X] T053 [P] [US3] Test de dominio: editar el título o la descripción de una categoría desactivada conserva su estado "desactivada" (FR-026, AC-9) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
+- [X] T054 [P] [US3] Test de dominio: reactivar una categoría desactivada la vuelve disponible para clasificar nuevos movimientos (FR-030, FR-031, AC-10) en `tests/PersonalFinance.Domain.Tests/Servicios/CategoriaServicioTests.cs`
 - [ ] T055 [P] [US3] Test de componente: la página `/categorias` permite crear, editar, eliminar, desactivar y reactivar, mostrando el estado de cada una en `tests/PersonalFinance.Web.Tests/Paginas/CategoriasPaginaTests.cs`
 
 ### Implementation for User Story 3
