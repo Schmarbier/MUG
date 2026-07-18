@@ -234,7 +234,7 @@ tests/PersonalFinance.Web.Tests/
 - [X] T072 [P] [US6] Test de dominio: una moneda desactivada se trata como "moneda no soportada" al clasificar, y reactivarla la vuelve disponible con su tipo de cambio vigente (FR-035e, AC-10, AC-11) en `tests/PersonalFinance.Domain.Tests/Servicios/MonedaServicioTests.cs`
 - [X] T073 [P] [US6] Test de dominio: editar el tipo de cambio histórico de un movimiento con confirmación de propagación lo aplica a los demás movimientos de igual moneda y fecha; sin confirmar, solo al editado (FR-022, FR-023, AC-6, AC-7) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
 - [X] T073a [P] [US6] Test de dominio: editar el tipo de cambio histórico de un movimiento a un valor menor o igual a cero se rechaza con error, sin modificar el movimiento ni disparar la confirmación de propagación (FR-022, FR-039) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
-- [ ] T074 [P] [US6] Test de componente: `/monedas` permite alta, listado, edición de cotización, baja y reactivación en `tests/PersonalFinance.Web.Tests/Paginas/MonedasPaginaTests.cs`
+- [X] T074 [P] [US6] Test de componente: `/monedas` permite alta, listado, edición de cotización, baja y reactivación en `tests/PersonalFinance.Web.Tests/Paginas/MonedasPaginaTests.cs`
 
 ### Implementation for User Story 6
 
