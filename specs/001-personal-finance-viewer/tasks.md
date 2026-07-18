@@ -132,7 +132,7 @@ tests/PersonalFinance.Web.Tests/
 - [X] T044a [P] [US2] Test de dominio: el total general de un bloque es la suma de los equivalentes en moneda base de TODAS las filas del mes, y no varía al cambiar de página (FR-012a, AC-5) en `tests/PersonalFinance.Domain.Tests/Servicios/ResumenMensualServicioTests.cs`
 - [X] T045 [P] [US2] Test de dominio: un mes sin movimientos muestra ambos bloques presentes con totales en cero (Edge Case) en `tests/PersonalFinance.Domain.Tests/Servicios/ResumenMensualServicioTests.cs`
 - [X] T046 [P] [US2] Test de dominio: un bloque con menos de 4 filas produce una única página sin controles de navegación activos (Edge Case) en `tests/PersonalFinance.Domain.Tests/Servicios/ResumenMensualServicioTests.cs`
-- [ ] T047 [P] [US2] Test de componente: la página `/` renderiza los dos bloques con paginación independiente, el total general de cada bloque, y respeta las invariantes de `contracts/visor.md` § Resumen mensual en `tests/PersonalFinance.Web.Tests/Paginas/ResumenMensualPaginaTests.cs`
+- [X] T047 [P] [US2] Test de componente: la página `/` renderiza los dos bloques con paginación independiente, el total general de cada bloque, y respeta las invariantes de `contracts/visor.md` § Resumen mensual en `tests/PersonalFinance.Web.Tests/Paginas/ResumenMensualPaginaTests.cs`
 
 ### Implementation for User Story 2
 
