@@ -185,7 +185,7 @@ tests/PersonalFinance.Web.Tests/
 
 ### Implementation for User Story 4
 
-- [ ] T061 [US4] Implementar `BandejaErroresServicio` (listar mensajes en error, reprocesar reinvocando `ClasificacionServicio`) en `src/PersonalFinance.Domain/Servicios/BandejaErroresServicio.cs` (depende de T034; hace pasar T058-T059)
+- [X] T061 [US4] Implementar `BandejaErroresServicio` (listar mensajes en error, reprocesar reinvocando `ClasificacionServicio`) en `src/PersonalFinance.Domain/Servicios/BandejaErroresServicio.cs` (depende de T034; hace pasar T058-T059)
 - [ ] T062 [US4] Implementar la página InteractiveServer `/errores` en `src/PersonalFinance.Web/Components/Pages/Errores.razor` (depende de T061; hace pasar T060)
 
 **Checkpoint**: bandeja de errores operativa de punta a punta — validar con quickstart.md § V8
