@@ -163,7 +163,7 @@ tests/PersonalFinance.Web.Tests/
 ### Implementation for User Story 3
 
 - [X] T056 [US3] Implementar `CategoriaServicio` (crear, editar, eliminar/desactivar, reactivar, unicidad de título) en `src/PersonalFinance.Domain/Servicios/CategoriaServicio.cs` (depende de T021; hace pasar T050-T054)
-- [ ] T057 [US3] Implementar la página InteractiveServer `/categorias` en `src/PersonalFinance.Web/Components/Pages/Categorias.razor` (depende de T056; hace pasar T055)
+- [X] T057 [US3] Implementar la página InteractiveServer `/categorias` en `src/PersonalFinance.Web/Components/Pages/Categorias.razor` (depende de T056; hace pasar T055)
 
 **Checkpoint**: gestión de categorías operativa de punta a punta — validar con quickstart.md § V10
 

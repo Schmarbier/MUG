@@ -20,6 +20,7 @@ builder.Services.AddScoped<IMensajeRepositorio, MensajeRepositorio>();
 builder.Services.AddScoped<IMovimientoRepositorio, MovimientoRepositorio>();
 
 builder.Services.AddScoped<ResumenMensualServicio>();
+builder.Services.AddScoped<CategoriaServicio>();
 
 var app = builder.Build();
 
