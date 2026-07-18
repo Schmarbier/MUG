@@ -45,6 +45,33 @@ public class MovimientoServicio(IMovimientoRepositorio movimientoRepositorio, IM
         await movimientoRepositorio.GuardarCambiosAsync(ct);
     }
 
+    /// <summary>
+    /// Con <paramref name="propagar"/>, aplica el valor a todos los movimientos de igual moneda
+    /// y fecha, sin importar su tipo de cambio histórico previo (FR-023, AC-7.a). Sin propagar,
+    /// solo afecta al movimiento editado.
+    /// </summary>
+    public async Task EditarTipoDeCambioHistoricoAsync(int movimientoId, decimal tipoDeCambio, bool propagar, CancellationToken ct = default)
+    {
+        if (tipoDeCambio <= 0)
+        {
+            throw new InvalidOperationException("El tipo de cambio debe ser mayor a cero.");
+        }
+
+        var movimiento = await ObtenerAsync(movimientoId, ct);
+        movimiento.TipoDeCambioHistorico = tipoDeCambio;
+
+        if (propagar)
+        {
+            var mismaMonedaYFecha = await movimientoRepositorio.ListarPorMonedaYFechaAsync(movimiento.MonedaId, movimiento.Fecha, ct);
+            foreach (var otro in mismaMonedaYFecha.Where(m => m.Id != movimiento.Id))
+            {
+                otro.TipoDeCambioHistorico = tipoDeCambio;
+            }
+        }
+
+        await movimientoRepositorio.GuardarCambiosAsync(ct);
+    }
+
     private async Task<Movimiento> ObtenerAsync(int id, CancellationToken ct) =>
         await movimientoRepositorio.ObtenerPorIdAsync(id, ct)
             ?? throw new InvalidOperationException("El movimiento no existe.");
