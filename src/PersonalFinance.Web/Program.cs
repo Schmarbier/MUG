@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using PersonalFinance.Domain.Puertos;
+using PersonalFinance.Domain.Servicios;
+using PersonalFinance.Infrastructure.Persistencia;
+using PersonalFinance.Infrastructure.Persistencia.Repositorios;
 using PersonalFinance.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +11,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddDbContext<PersonalFinanceDbContext>(opciones =>
+    opciones.UseSqlite(ConexionSqlite.ObtenerCadenaConexion()));
+
+builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
+builder.Services.AddScoped<IMonedaRepositorio, MonedaRepositorio>();
+builder.Services.AddScoped<IMensajeRepositorio, MensajeRepositorio>();
+builder.Services.AddScoped<IMovimientoRepositorio, MovimientoRepositorio>();
+
+builder.Services.AddScoped<ResumenMensualServicio>();
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var contexto = scope.ServiceProvider.GetRequiredService<PersonalFinanceDbContext>();
+    contexto.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

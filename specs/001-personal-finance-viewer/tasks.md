@@ -137,7 +137,7 @@ tests/PersonalFinance.Web.Tests/
 ### Implementation for User Story 2
 
 - [X] T048 [US2] Implementar `ResumenMensualServicio` (agregación en memoria, `decimal.Round(..., MidpointRounding.AwayFromZero)` una sola vez, orden y desempate, paginación de 4 filas, total general por bloque sobre todas las filas del mes) en `src/PersonalFinance.Domain/Servicios/ResumenMensualServicio.cs` (depende de T021; hace pasar T040-T046, T044a)
-- [ ] T049 [US2] Implementar la página `/` en modo Static SSR consumiendo `ResumenMensualServicio` con número de página por bloque y el total general de cada bloque en `src/PersonalFinance.Web/Components/Pages/ResumenMensual.razor` (depende de T048; hace pasar T047)
+- [X] T049 [US2] Implementar la página `/` en modo Static SSR consumiendo `ResumenMensualServicio` con número de página por bloque y el total general de cada bloque en `src/PersonalFinance.Web/Components/Pages/ResumenMensual.razor` (depende de T048; hace pasar T047)
 
 **Checkpoint**: User Stories 1 y 2 = MVP completo — validar con quickstart.md § V4, V5, V6, V7
 
