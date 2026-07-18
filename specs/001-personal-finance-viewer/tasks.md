@@ -202,10 +202,10 @@ tests/PersonalFinance.Web.Tests/
 
 > Escribir estos tests PRIMERO, confirmar que fallan antes de implementar
 
-- [ ] T063 [P] [US5] Test de dominio: editar la categoría o el monto de un movimiento existente lo actualiza sin afectar los demás campos (FR-018, FR-019, AC-1, AC-2) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
-- [ ] T063a [P] [US5] Test de dominio: editar el monto de un movimiento a un valor menor o igual a cero se rechaza con error, sin modificar el movimiento (FR-019, FR-038) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
-- [ ] T064 [P] [US5] Test de dominio: editar la moneda de un movimiento registra el tipo de cambio vigente de la nueva moneda (FR-020, FR-021, AC-3) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
-- [ ] T065 [P] [US5] Test de dominio: editar el tipo de un movimiento lo mueve al otro bloque del resumen sin alterar monto, moneda ni tipo de cambio histórico (FR-018a, AC-4, AC-5) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
+- [X] T063 [P] [US5] Test de dominio: editar la categoría o el monto de un movimiento existente lo actualiza sin afectar los demás campos (FR-018, FR-019, AC-1, AC-2) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
+- [X] T063a [P] [US5] Test de dominio: editar el monto de un movimiento a un valor menor o igual a cero se rechaza con error, sin modificar el movimiento (FR-019, FR-038) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
+- [X] T064 [P] [US5] Test de dominio: editar la moneda de un movimiento registra el tipo de cambio vigente de la nueva moneda (FR-020, FR-021, AC-3) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
+- [X] T065 [P] [US5] Test de dominio: editar el tipo de un movimiento lo mueve al otro bloque del resumen sin alterar monto, moneda ni tipo de cambio histórico (FR-018a, AC-4, AC-5) en `tests/PersonalFinance.Domain.Tests/Servicios/MovimientoServicioTests.cs`
 - [ ] T066 [P] [US5] Test de componente: `/movimientos/{id}/editar` permite editar categoría, tipo, monto y moneda, y el resumen refleja el cambio sin recálculo manual (SC-008) en `tests/PersonalFinance.Web.Tests/Paginas/EditarMovimientoPaginaTests.cs`
 
 ### Implementation for User Story 5
