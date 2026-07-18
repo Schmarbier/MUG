@@ -65,9 +65,9 @@ tests/PersonalFinance.Web.Tests/
 - [X] T013 [P] Crear entidad `Mensaje` (Id, IdentificadorCanal, Texto, FechaRecepcionUtc, Procesado, IntentosClasificacion, TieneError, MotivoError) en `src/PersonalFinance.Domain/Entidades/Mensaje.cs`
 - [X] T014 [P] Crear enum `TipoMovimiento` y entidad `Movimiento` (Id, MensajeId, CategoriaId, MonedaId, Monto, Tipo, Fecha, TipoDeCambioHistorico) en `src/PersonalFinance.Domain/Entidades/TipoMovimiento.cs` y `src/PersonalFinance.Domain/Entidades/Movimiento.cs`
 - [X] T015 Definir los puertos de repositorio `ICategoriaRepositorio`, `IMonedaRepositorio`, `IMensajeRepositorio`, `IMovimientoRepositorio` en `src/PersonalFinance.Domain/Puertos/` (depende de T011-T014)
-- [ ] T016 Crear `PersonalFinanceDbContext` con los cuatro `DbSet` en `src/PersonalFinance.Infrastructure/Persistencia/PersonalFinanceDbContext.cs` (depende de T011-T014)
-- [ ] T017 [P] Configurar las entidades vía Fluent API con los índices únicos y no únicos de `data-model.md` § Índices en `src/PersonalFinance.Infrastructure/Persistencia/Configuraciones/` (depende de T016; hace pasar T007)
-- [ ] T018 [P] Implementar `MontoValueConverter` y `TipoDeCambioValueConverter` (decimal↔long, factor ×100) en `src/PersonalFinance.Infrastructure/Persistencia/Converters/` (hace pasar T008)
+- [X] T016 Crear `PersonalFinanceDbContext` con los cuatro `DbSet` en `src/PersonalFinance.Infrastructure/Persistencia/PersonalFinanceDbContext.cs` (depende de T011-T014)
+- [X] T017 [P] Configurar las entidades vía Fluent API con los índices únicos y no únicos de `data-model.md` § Índices en `src/PersonalFinance.Infrastructure/Persistencia/Configuraciones/` (depende de T016; hace pasar T007)
+- [X] T018 [P] Implementar `MontoValueConverter` y `TipoDeCambioValueConverter` (decimal↔long, factor ×100) en `src/PersonalFinance.Infrastructure/Persistencia/Converters/` (hace pasar T008)
 - [ ] T019 Generar la migración inicial de EF Core con el seed de ARS en `src/PersonalFinance.Infrastructure/Persistencia/Migraciones/` (depende de T016-T018; hace pasar T009)
 - [ ] T020 Implementar el resolutor de cadena de conexión absoluta con override en `src/PersonalFinance.Infrastructure/Persistencia/ConexionSqlite.cs` (hace pasar T010)
 - [ ] T021 [P] Implementar los adaptadores EF Core de los cuatro puertos de repositorio en `src/PersonalFinance.Infrastructure/Persistencia/Repositorios/` (depende de T015, T017, T019)
