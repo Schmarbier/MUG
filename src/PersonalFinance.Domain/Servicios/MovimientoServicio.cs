@@ -58,6 +58,13 @@ public class MovimientoServicio(IMovimientoRepositorio movimientoRepositorio, IM
         }
 
         var movimiento = await ObtenerAsync(movimientoId, ct);
+        var moneda = await monedaRepositorio.ObtenerPorIdAsync(movimiento.MonedaId, ct)
+            ?? throw new InvalidOperationException("La moneda del movimiento no existe.");
+        if (moneda.EsBase)
+        {
+            throw new InvalidOperationException("Un movimiento en la moneda base no tiene tipo de cambio histórico.");
+        }
+
         movimiento.TipoDeCambioHistorico = tipoDeCambio;
 
         if (propagar)

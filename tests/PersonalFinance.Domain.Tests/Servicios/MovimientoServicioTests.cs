@@ -94,6 +94,7 @@ public sealed class MovimientoServicioTests
     [Fact]
     public async Task Editar_tipo_de_cambio_historico_con_confirmacion_propaga_a_movimientos_de_igual_moneda_y_fecha()
     {
+        _monedas.Monedas.Add(new Moneda { Id = 1, Codigo = "USD", EsBase = false, Activa = true, TipoDeCambio = 1500m });
         var fecha = new DateOnly(2026, 7, 10);
         var editado = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
         editado.Fecha = fecha;
@@ -112,6 +113,7 @@ public sealed class MovimientoServicioTests
     [Fact]
     public async Task Editar_tipo_de_cambio_historico_sin_confirmar_solo_afecta_al_editado()
     {
+        _monedas.Monedas.Add(new Moneda { Id = 1, Codigo = "USD", EsBase = false, Activa = true, TipoDeCambio = 1500m });
         var fecha = new DateOnly(2026, 7, 10);
         var editado = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
         editado.Fecha = fecha;
@@ -127,11 +129,24 @@ public sealed class MovimientoServicioTests
     [Fact]
     public async Task Editar_tipo_de_cambio_historico_a_valor_menor_o_igual_a_cero_se_rechaza_sin_modificar_ni_propagar()
     {
+        _monedas.Monedas.Add(new Moneda { Id = 1, Codigo = "USD", EsBase = false, Activa = true, TipoDeCambio = 1500m });
         var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso, tipoDeCambioHistorico: 1500m);
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => _servicio.EditarTipoDeCambioHistoricoAsync(movimiento.Id, 0m, propagar: true));
 
         Assert.Equal(1500m, movimiento.TipoDeCambioHistorico);
+    }
+
+    [Fact]
+    public async Task Editar_tipo_de_cambio_historico_de_un_movimiento_en_moneda_base_se_rechaza()
+    {
+        _monedas.Monedas.Add(new Moneda { Id = 1, Codigo = "ARS", EsBase = true, Activa = true, TipoDeCambio = null });
+        var movimiento = AgregarMovimiento(categoriaId: 1, monedaId: 1, monto: 100.00m, TipoMovimiento.Egreso);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _servicio.EditarTipoDeCambioHistoricoAsync(movimiento.Id, 1500m, propagar: false));
+
+        Assert.Null(movimiento.TipoDeCambioHistorico);
     }
 }
