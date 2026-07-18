@@ -107,4 +107,58 @@ public sealed class EditarMovimientoPaginaTests : BunitContext
         Assert.Single(resumen.Ingresos.Filas);
         Assert.Equal(2000.00m, resumen.Ingresos.Filas[0].EquivalenteEnBase);
     }
+
+    [Fact]
+    public void Editar_tipo_de_cambio_historico_pide_confirmacion_antes_de_propagar()
+    {
+        var fecha = new DateOnly(2026, 7, 10);
+        var editado = new Movimiento { Id = 2, MensajeId = 2, CategoriaId = _hogar.Id, MonedaId = _usd.Id, Monto = 100.00m, Tipo = TipoMovimiento.Egreso, Fecha = fecha, TipoDeCambioHistorico = 1500m };
+        var otro = new Movimiento { Id = 3, MensajeId = 3, CategoriaId = _hogar.Id, MonedaId = _usd.Id, Monto = 200.00m, Tipo = TipoMovimiento.Egreso, Fecha = fecha, TipoDeCambioHistorico = 1500m };
+        _movimientos.Movimientos.AddRange([editado, otro]);
+
+        var componente = Render<PaginaEditarMovimiento>(
+            (ComponentParameterCollectionBuilder<PaginaEditarMovimiento> parametros) =>
+                parametros.Add(p => p.Id, editado.Id));
+
+        componente.Find("#tipoDeCambioHistorico").Change("1450");
+        componente.Find("button:contains('Guardar tipo de cambio histórico')").Click();
+
+        Assert.Contains("¿Aplicar este tipo de cambio también a los demás movimientos", componente.Markup);
+        Assert.Equal(1500m, editado.TipoDeCambioHistorico); // todavía no se guardó, falta confirmar
+
+        componente.Find("button:contains('Sí, aplicar a los demás')").Click();
+
+        Assert.Equal(1450m, editado.TipoDeCambioHistorico);
+        Assert.Equal(1450m, otro.TipoDeCambioHistorico);
+    }
+
+    [Fact]
+    public void Editar_tipo_de_cambio_historico_sin_confirmar_no_propaga()
+    {
+        var fecha = new DateOnly(2026, 7, 10);
+        var editado = new Movimiento { Id = 2, MensajeId = 2, CategoriaId = _hogar.Id, MonedaId = _usd.Id, Monto = 100.00m, Tipo = TipoMovimiento.Egreso, Fecha = fecha, TipoDeCambioHistorico = 1500m };
+        var otro = new Movimiento { Id = 3, MensajeId = 3, CategoriaId = _hogar.Id, MonedaId = _usd.Id, Monto = 200.00m, Tipo = TipoMovimiento.Egreso, Fecha = fecha, TipoDeCambioHistorico = 1500m };
+        _movimientos.Movimientos.AddRange([editado, otro]);
+
+        var componente = Render<PaginaEditarMovimiento>(
+            (ComponentParameterCollectionBuilder<PaginaEditarMovimiento> parametros) =>
+                parametros.Add(p => p.Id, editado.Id));
+
+        componente.Find("#tipoDeCambioHistorico").Change("1450");
+        componente.Find("button:contains('Guardar tipo de cambio histórico')").Click();
+        componente.Find("button:contains('No, solo este movimiento')").Click();
+
+        Assert.Equal(1450m, editado.TipoDeCambioHistorico);
+        Assert.Equal(1500m, otro.TipoDeCambioHistorico);
+    }
+
+    [Fact]
+    public void Un_movimiento_en_moneda_base_no_ofrece_editar_tipo_de_cambio_historico()
+    {
+        var componente = Render<PaginaEditarMovimiento>(
+            (ComponentParameterCollectionBuilder<PaginaEditarMovimiento> parametros) =>
+                parametros.Add(p => p.Id, _movimiento.Id));
+
+        Assert.Empty(componente.FindAll("#tipoDeCambioHistorico"));
+    }
 }

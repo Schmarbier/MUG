@@ -52,6 +52,25 @@ else
         <button @onclick="GuardarMonedaAsync">Guardar moneda</button>
     </div>
 
+    @if (!_esMonedaBaseDelMovimiento)
+    {
+        <div>
+            <label for="tipoDeCambioHistorico">Tipo de cambio histórico</label>
+            <input id="tipoDeCambioHistorico" @bind="_tipoDeCambioHistoricoEdicion" />
+
+            @if (!_mostrarConfirmacionPropagacion)
+            {
+                <button @onclick="PedirConfirmacionPropagacion">Guardar tipo de cambio histórico</button>
+            }
+            else
+            {
+                <p>¿Aplicar este tipo de cambio también a los demás movimientos de igual moneda y fecha?</p>
+                <button @onclick="() => GuardarTipoDeCambioHistoricoAsync(propagar: true)">Sí, aplicar a los demás</button>
+                <button @onclick="() => GuardarTipoDeCambioHistoricoAsync(propagar: false)">No, solo este movimiento</button>
+            }
+        </div>
+    }
+
     @if (_error is not null)
     {
         <p class="error">@_error</p>
@@ -69,6 +88,9 @@ else
     private int _monedaId;
     private TipoMovimiento _tipo;
     private decimal _monto;
+    private decimal _tipoDeCambioHistoricoEdicion;
+    private bool _esMonedaBaseDelMovimiento;
+    private bool _mostrarConfirmacionPropagacion;
     private string? _error;
 
     protected override async Task OnInitializedAsync()
@@ -87,6 +109,10 @@ else
             _monedaId = _movimiento.MonedaId;
             _tipo = _movimiento.Tipo;
             _monto = _movimiento.Monto;
+            _tipoDeCambioHistoricoEdicion = _movimiento.TipoDeCambioHistorico ?? 0;
+
+            var moneda = await MonedaRepositorio.ObtenerPorIdAsync(_movimiento.MonedaId);
+            _esMonedaBaseDelMovimiento = moneda?.EsBase ?? false;
         }
     }
 
@@ -97,6 +123,14 @@ else
     private Task GuardarMontoAsync() => EjecutarAsync(() => MovimientoServicio.EditarMontoAsync(Id, _monto));
 
     private Task GuardarMonedaAsync() => EjecutarAsync(() => MovimientoServicio.EditarMonedaAsync(Id, _monedaId));
+
+    private void PedirConfirmacionPropagacion() => _mostrarConfirmacionPropagacion = true;
+
+    private Task GuardarTipoDeCambioHistoricoAsync(bool propagar)
+    {
+        _mostrarConfirmacionPropagacion = false;
+        return EjecutarAsync(() => MovimientoServicio.EditarTipoDeCambioHistoricoAsync(Id, _tipoDeCambioHistoricoEdicion, propagar));
+    }
 
     private async Task EjecutarAsync(Func<Task> accion)
     {
