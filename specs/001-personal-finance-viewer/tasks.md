@@ -36,10 +36,10 @@ tests/PersonalFinance.Web.Tests/
 
 - [X] T001 Crear `PersonalFinance.sln` y los cuatro proyectos de producción (`src/PersonalFinance.Domain`, `src/PersonalFinance.Infrastructure`, `src/PersonalFinance.Bot`, `src/PersonalFinance.Web`) con las referencias de proyecto del plan: Domain sin dependencias salientes; Infrastructure → Domain; Bot → Domain + Infrastructure; Web → Domain + Infrastructure
 - [X] T002 Crear los tres proyectos de test xUnit (`tests/PersonalFinance.Domain.Tests` → Domain; `tests/PersonalFinance.Infrastructure.Tests` → Infrastructure; `tests/PersonalFinance.Web.Tests` → Web + Domain) y agregar los siete proyectos a `PersonalFinance.sln`
-- [ ] T003 [P] Agregar el paquete NuGet `Microsoft.EntityFrameworkCore.Sqlite` a `src/PersonalFinance.Infrastructure`
-- [ ] T004 [P] Agregar el paquete NuGet `Telegram.Bot` a `src/PersonalFinance.Bot`
-- [ ] T005 [P] Agregar el paquete NuGet `OllamaSharp` a `src/PersonalFinance.Infrastructure`
-- [ ] T006 [P] Agregar el paquete NuGet `bunit` a `tests/PersonalFinance.Web.Tests` para testear componentes Razor (verificar licencia antes de sumarlo, per R9)
+- [X] T003 [P] Agregar el paquete NuGet `Microsoft.EntityFrameworkCore.Sqlite` a `src/PersonalFinance.Infrastructure`
+- [X] T004 [P] Agregar el paquete NuGet `Telegram.Bot` a `src/PersonalFinance.Bot`
+- [X] T005 [P] Agregar el paquete NuGet `OllamaSharp` a `src/PersonalFinance.Infrastructure`
+- [X] T006 [P] Agregar el paquete NuGet `bunit` a `tests/PersonalFinance.Web.Tests` para testear componentes Razor (verificar licencia antes de sumarlo, per R9)
 
 ---
 
