@@ -11,6 +11,16 @@
     <p class="error">@_error</p>
 }
 
+@if (_resultado is not null)
+{
+    <p class="resultado">@_resultado</p>
+}
+
+@if (_mensajes.Count > 0)
+{
+    <button @onclick="ReprocesarTodosAsync" disabled="@_reprocesandoTodos">Reprocesar todos</button>
+}
+
 <table>
     <thead>
         <tr><th>Texto</th><th>Motivo</th><th>Acciones</th></tr>
@@ -30,6 +40,8 @@
 @code {
     private IReadOnlyList<Mensaje> _mensajes = [];
     private string? _error;
+    private string? _resultado;
+    private bool _reprocesandoTodos;
 
     protected override async Task OnInitializedAsync() => await CargarAsync();
 
@@ -38,6 +50,7 @@
     private async Task ReprocesarAsync(int id)
     {
         _error = null;
+        _resultado = null;
         try
         {
             await BandejaErroresServicio.ReprocesarAsync(id);
@@ -46,6 +59,33 @@
         catch (InvalidOperationException ex)
         {
             _error = ex.Message;
+        }
+    }
+
+    private async Task ReprocesarTodosAsync()
+    {
+        // Guarda contra el doble click: el botón se deshabilita mientras corre el lote.
+        if (_reprocesandoTodos)
+        {
+            return;
+        }
+
+        _error = null;
+        _resultado = null;
+        _reprocesandoTodos = true;
+        try
+        {
+            var resultado = await BandejaErroresServicio.ReprocesarTodosAsync();
+            await CargarAsync();
+            _resultado = $"{resultado.Exitosos} de {resultado.Total} reprocesados correctamente.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _reprocesandoTodos = false;
         }
     }
 }

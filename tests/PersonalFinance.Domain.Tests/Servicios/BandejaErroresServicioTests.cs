@@ -21,13 +21,13 @@ public sealed class BandejaErroresServicioTests
         _servicio = new BandejaErroresServicio(_mensajes, _clasificacionServicio);
     }
 
-    private Mensaje AgregarMensajeConError(string motivo)
+    private Mensaje AgregarMensajeConError(string motivo, string texto = "texto")
     {
         var mensaje = new Mensaje
         {
             Id = _mensajes.Mensajes.Count + 1,
             IdentificadorCanal = _mensajes.Mensajes.Count + 1,
-            Texto = "texto",
+            Texto = texto,
             FechaRecepcionUtc = DateTimeOffset.UtcNow,
             Procesado = false,
             IntentosClasificacion = 0,
@@ -80,5 +80,68 @@ public sealed class BandejaErroresServicioTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => _servicio.ReprocesarAsync(mensaje.Id));
 
         Assert.Empty(_movimientos.Movimientos);
+    }
+
+    private void AgregarCatalogoBase()
+    {
+        _categorias.Categorias.Add(new Categoria { Id = 1, Titulo = "Hogar", Descripcion = "d", Activa = true });
+        _monedas.Monedas.Add(new Moneda { Id = 1, Codigo = "ARS", EsBase = true, Activa = true, TipoDeCambio = null });
+    }
+
+    [Fact]
+    public async Task Reprocesar_todos_resuelve_toda_la_bandeja_cuando_la_causa_esta_corregida()
+    {
+        AgregarCatalogoBase();
+        var uno = AgregarMensajeConError("moneda no soportada", "1000 uno");
+        var dos = AgregarMensajeConError("moneda no soportada", "1000 dos");
+        var tres = AgregarMensajeConError("moneda no soportada", "1000 tres");
+        _clasificador.Resultado = new ResultadoClasificacion.Exitosa(
+            new Clasificacion(1000.00m, TipoMovimiento.Egreso, "Hogar", "ARS"));
+
+        var resultado = await _servicio.ReprocesarTodosAsync();
+
+        Assert.Equal(3, resultado.Total);
+        Assert.Equal(3, resultado.Exitosos);
+        Assert.Equal(0, resultado.ConError);
+        Assert.All([uno, dos, tres], m => Assert.True(m.Procesado));
+        Assert.Empty(await _servicio.ListarAsync());
+        Assert.Equal(3, _movimientos.Movimientos.Count);
+    }
+
+    [Fact]
+    public async Task Reprocesar_todos_sigue_con_el_resto_aunque_alguno_vuelva_a_fallar()
+    {
+        AgregarCatalogoBase();
+        var bueno = AgregarMensajeConError("moneda no soportada", "1000 bueno");
+        var malo = AgregarMensajeConError("moneda no soportada", "sin monto");
+        _clasificador.Resultado = new ResultadoClasificacion.Exitosa(
+            new Clasificacion(1000.00m, TipoMovimiento.Egreso, "Hogar", "ARS"));
+        _clasificador.ResultadoPorTexto["sin monto"] =
+            new ResultadoClasificacion.Fallida(new Falla(MotivoFalla.SinMonto));
+
+        var resultado = await _servicio.ReprocesarTodosAsync();
+
+        Assert.Equal(2, resultado.Total);
+        Assert.Equal(1, resultado.Exitosos);
+        Assert.Equal(1, resultado.ConError);
+        Assert.True(bueno.Procesado);
+        Assert.True(malo.TieneError);
+        Assert.Equal("no contiene monto", malo.MotivoError);
+        // El que falló sigue en la bandeja; el que anduvo salió.
+        var restantes = await _servicio.ListarAsync();
+        Assert.Same(malo, Assert.Single(restantes));
+    }
+
+    [Fact]
+    public async Task Reprocesar_todos_con_la_bandeja_vacia_no_explota_y_devuelve_ceros()
+    {
+        AgregarCatalogoBase();
+
+        var resultado = await _servicio.ReprocesarTodosAsync();
+
+        Assert.Equal(0, resultado.Total);
+        Assert.Equal(0, resultado.Exitosos);
+        Assert.Equal(0, resultado.ConError);
+        Assert.False(_clasificador.FueInvocado);
     }
 }
