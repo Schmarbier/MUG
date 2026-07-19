@@ -252,7 +252,7 @@ tests/PersonalFinance.Web.Tests/
 **Purpose**: Validación end-to-end y cierre de criterios medibles que atraviesan todas las historias
 
 - [ ] T079 [P] Ejecutar los doce escenarios de `quickstart.md` § Escenarios de validación (V1–V12) y documentar el resultado de cada uno
-- [ ] T080 [P] Verificar SC-001 (≥ 80% de acierto, los cuatro atributos correctos per R8) sobre un conjunto etiquetado de al menos 50 mensajes que cubra todas las categorías
+- [X] T080 [P] Verificar SC-001 (≥ 80% de acierto, los cuatro atributos correctos per R8) sobre un conjunto etiquetado de al menos 50 mensajes que cubra todas las categorías
 - [ ] T081 [P] Verificar SC-002 (clasificación < 5 s p90) y SC-003 (resumen < 1 s p95) sobre el volumen de referencia de R7 (7.200 movimientos, 20 categorías, 3 monedas)
 - [X] T082 Revisar `checklists/integridad-financiera.md` y cerrar los ítems cubiertos por las tareas anteriores (totales de bloque, propagación de tipo de cambio, corrección de datos, alcance temporal, medibilidad, trazabilidad)
 - [X] T082a [P] Verificar que `src/PersonalFinance.Bot` no registra comandos ni envía respuestas al chat de Telegram bajo ninguna circunstancia —el canal es solo entrada de ingesta— (FR-037)
