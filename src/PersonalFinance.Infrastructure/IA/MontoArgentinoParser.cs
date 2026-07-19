@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace PersonalFinance.Infrastructure.IA;
 
@@ -9,7 +10,7 @@ namespace PersonalFinance.Infrastructure.IA;
 /// la interpretación numérica se hace acá, nunca confiando en la aritmética del modelo
 /// (medido: "10,22" lo convertía en 1022 cuando se le pedía devolver un JSON number).
 /// </summary>
-public static class MontoArgentinoParser
+public static partial class MontoArgentinoParser
 {
     public static bool TryParsear(string? texto, out decimal monto)
     {
@@ -20,7 +21,11 @@ public static class MontoArgentinoParser
             return false;
         }
 
-        var limpio = texto.Trim();
+        // El modelo a veces agrega un símbolo de moneda pegado al número (p. ej. "$10", "U$S 10")
+        // pese a que se le pide devolver solo el número: se descarta ese prefijo/sufijo, nunca
+        // el contenido numérico en sí (medido contra Ollama real).
+        var limpio = SimboloDeMonedaRegex().Replace(texto.Trim(), "");
+
         if (limpio.Length == 0 || !limpio.All(c => char.IsDigit(c) || c is '.' or ','))
         {
             return false;
@@ -100,4 +105,7 @@ public static class MontoArgentinoParser
 
         return decimal.TryParse(normalizado, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out monto);
     }
+
+    [GeneratedRegex(@"^[^\d.,]+|[^\d.,]+$")]
+    private static partial Regex SimboloDeMonedaRegex();
 }
