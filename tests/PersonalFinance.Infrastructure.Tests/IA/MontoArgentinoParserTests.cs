@@ -43,4 +43,41 @@ public sealed class MontoArgentinoParserTests
 
         Assert.False(exito);
     }
+
+    [Theory]
+    [InlineData("3000 alquiler")]
+    [InlineData("10,22 dolares en libro")]
+    [InlineData("$3000")]
+    [InlineData("3000")]
+    public void ContieneMonto_detecta_un_numero_en_el_texto_original(string texto)
+    {
+        Assert.True(MontoArgentinoParser.ContieneMonto(texto));
+    }
+
+    [Theory]
+    [InlineData("Cine con amigos")]
+    [InlineData("")]
+    [InlineData("sin numeros aca")]
+    public void ContieneMonto_es_false_sin_ningun_numero(string texto)
+    {
+        Assert.False(MontoArgentinoParser.ContieneMonto(texto));
+    }
+
+    [Theory]
+    [InlineData("3000 alquiler")]
+    [InlineData("Cine con amigos")]
+    public void ContieneDescripcion_es_true_cuando_hay_palabras(string texto)
+    {
+        Assert.True(MontoArgentinoParser.ContieneDescripcion(texto));
+    }
+
+    [Theory]
+    [InlineData("3000")]
+    [InlineData("$3000")]
+    [InlineData("1.234,56")]
+    [InlineData("")]
+    public void ContieneDescripcion_es_false_cuando_es_solo_un_numero(string texto)
+    {
+        Assert.False(MontoArgentinoParser.ContieneDescripcion(texto));
+    }
 }

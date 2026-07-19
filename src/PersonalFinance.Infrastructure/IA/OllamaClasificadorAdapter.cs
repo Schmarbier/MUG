@@ -50,6 +50,21 @@ public class OllamaClasificadorAdapter(
         IReadOnlyList<MonedaActiva> monedasActivas,
         CancellationToken ct = default)
     {
+        // Se valida el texto ORIGINAL antes de invocar el modelo (Principio III): el modelo
+        // tiende a inventar un monto o una categoría plausibles en vez de admitir que el mensaje
+        // no alcanza para clasificar (medido contra Ollama real: "Cine con amigos" —sin ningún
+        // número— volvía con un monto inventado, y "3000" —sin ninguna palabra— volvía con una
+        // categoría inventada).
+        if (!MontoArgentinoParser.ContieneMonto(texto))
+        {
+            return Falla(MotivoFalla.SinMonto);
+        }
+
+        if (!MontoArgentinoParser.ContieneDescripcion(texto))
+        {
+            return Falla(MotivoFalla.SinDescripcion);
+        }
+
         string respuestaCruda;
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);

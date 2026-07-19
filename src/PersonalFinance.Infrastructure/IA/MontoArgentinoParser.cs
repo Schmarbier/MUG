@@ -12,6 +12,23 @@ namespace PersonalFinance.Infrastructure.IA;
 /// </summary>
 public static partial class MontoArgentinoParser
 {
+    /// <summary>
+    /// Verifica, sobre el texto original del mensaje —no sobre lo que devuelve el modelo—, que
+    /// exista al menos un número reconocible. Se llama ANTES de invocar el clasificador: sin
+    /// esto, el modelo puede alucinar un monto plausible para un mensaje que no tiene ninguno
+    /// (medido contra Ollama real: "Cine con amigos" devolvía un monto inventado).
+    /// </summary>
+    public static bool ContieneMonto(string texto) => NumeroToken().IsMatch(texto);
+
+    /// <summary>
+    /// Verifica que, además del número, el mensaje tenga alguna palabra descriptiva. Un mensaje
+    /// que es solo un número (p. ej. "3000") no alcanza para clasificar (FR-010, "no contiene
+    /// descripción") — el modelo tiende a inventar igual una categoría en vez de admitir que no
+    /// tiene con qué, así que esta verificación se hace en código, no se delega.
+    /// </summary>
+    public static bool ContieneDescripcion(string texto) =>
+        NumeroToken().Replace(texto, " ").Any(char.IsLetter);
+
     public static bool TryParsear(string? texto, out decimal monto)
     {
         monto = 0m;
@@ -108,4 +125,7 @@ public static partial class MontoArgentinoParser
 
     [GeneratedRegex(@"^[^\d.,]+|[^\d.,]+$")]
     private static partial Regex SimboloDeMonedaRegex();
+
+    [GeneratedRegex(@"\d(?:[\d.,]*\d)?")]
+    private static partial Regex NumeroToken();
 }
