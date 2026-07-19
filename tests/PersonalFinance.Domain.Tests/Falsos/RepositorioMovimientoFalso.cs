@@ -40,5 +40,15 @@ public sealed class RepositorioMovimientoFalso : IMovimientoRepositorio
         return Task.CompletedTask;
     }
 
-    public Task GuardarCambiosAsync(CancellationToken ct = default) => Task.CompletedTask;
+    /// <summary>
+    /// Hook para simular el DbContext compartido: en producción este SaveChanges también vuelca
+    /// los cambios pendientes del mensaje. Los tests que no les importa lo dejan en null.
+    /// </summary>
+    public Action? AlGuardarCambios { get; set; }
+
+    public Task GuardarCambiosAsync(CancellationToken ct = default)
+    {
+        AlGuardarCambios?.Invoke();
+        return Task.CompletedTask;
+    }
 }

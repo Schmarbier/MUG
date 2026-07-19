@@ -42,6 +42,10 @@ public class BandejaErroresServicio(IMensajeRepositorio mensajeRepositorio, Clas
     /// si uno falla (excepción del clasificador o de persistencia) se lo cuenta como no resuelto
     /// y se sigue con el resto, así un mensaje roto no bloquea el vaciado de la bandeja.
     /// Con la bandeja vacía devuelve un resultado en cero, sin lanzar.
+    ///
+    /// Garantía (FR-017b): un mensaje que no se pudo resolver vuelve a quedar en error
+    /// <b>persistido</b>, no solo en memoria, así sigue visible en la bandeja aunque la falla
+    /// haya ocurrido después de que la limpieza del error ya se hubiera volcado a la base.
     /// </summary>
     public async Task<ResultadoReprocesoMasivo> ReprocesarTodosAsync(CancellationToken ct = default)
     {
@@ -63,18 +67,48 @@ public class BandejaErroresServicio(IMensajeRepositorio mensajeRepositorio, Clas
             }
             catch (OperationCanceledException)
             {
+                // La cancelación sí corta el lote, pero antes deja este mensaje consistente:
+                // si se canceló entre el guardado del movimiento y el del mensaje, la base ya
+                // tiene TieneError = false y sin restaurar quedaría invisible.
+                await RestaurarErrorAsync(mensaje, motivoPrevio);
                 throw;
             }
             catch (Exception)
             {
                 // Un mensaje que explota no puede abortar el lote: queda contado como no resuelto.
-                // ReprocesarAsync ya le había limpiado el error, así que se lo restaura para que
-                // no desaparezca de la bandeja por una falla que nunca llegó a resolverse.
-                mensaje.TieneError = true;
-                mensaje.MotivoError = motivoPrevio;
+                await RestaurarErrorAsync(mensaje, motivoPrevio);
             }
         }
 
         return new ResultadoReprocesoMasivo(enError.Count, exitosos);
+    }
+
+    /// <summary>
+    /// Devuelve el mensaje al estado de error que tenía antes del intento y lo PERSISTE.
+    /// ReprocesarAsync ya le había limpiado el error; si esa limpieza alcanzó a llegar a la base
+    /// (el guardado del movimiento vuelca el mismo DbContext) y solo la restauramos en memoria,
+    /// el mensaje quedaría con TieneError = false y Procesado = false: ni en la bandeja de
+    /// errores ni en ninguna otra pantalla. Eso es exactamente lo que FR-017b prohíbe.
+    /// </summary>
+    private async Task RestaurarErrorAsync(Mensaje mensaje, string? motivoPrevio)
+    {
+        mensaje.TieneError = true;
+        mensaje.MotivoError = motivoPrevio;
+
+        try
+        {
+            // CancellationToken.None a propósito: la cancelación puede ser justamente la causa
+            // de la excepción que nos trajo hasta acá, y guardar con un token ya cancelado
+            // fallaría dejando el mensaje invisible en el único caso que queremos cubrir.
+            // Es una escritura mínima y acotada sobre un mensaje ya cargado: vale completarla.
+            await mensajeRepositorio.GuardarCambiosAsync(CancellationToken.None);
+        }
+        catch (Exception)
+        {
+            // Si ni la restauración se puede guardar, no tumbamos el lote ni tapamos la excepción
+            // original: el mensaje ya está contado como no resuelto y el resto de la bandeja
+            // todavía puede reprocesarse. La base queda como la dejó la falla original, que es
+            // lo mejor disponible cuando la persistencia entera está caída.
+        }
     }
 }

@@ -133,6 +133,32 @@ public sealed class BandejaErroresServicioTests
     }
 
     [Fact]
+    public async Task Reprocesar_todos_deja_el_mensaje_en_la_bandeja_persistido_aunque_falle_el_guardado()
+    {
+        AgregarCatalogoBase();
+        var mensaje = AgregarMensajeConError("moneda no soportada", "1000 uno");
+        _clasificador.Resultado = new ResultadoClasificacion.Exitosa(
+            new Clasificacion(1000.00m, TipoMovimiento.Egreso, "Hogar", "ARS"));
+        // El peor escenario (FR-017b): el guardado del movimiento ya volcó TieneError = false a la
+        // base (DbContext compartido) y recién después falla el guardado de Procesado. Si la
+        // restauración del error se quedara solo en memoria, el mensaje desaparecería de la
+        // bandeja Y tampoco figuraría como pendiente: invisible en toda la app.
+        _movimientos.AlGuardarCambios = _mensajes.ConfirmarPersistencia;
+        _mensajes.ErrorAlGuardar = new InvalidOperationException("la base no está disponible");
+
+        var resultado = await _servicio.ReprocesarTodosAsync();
+
+        Assert.Equal(1, resultado.Total);
+        Assert.Equal(0, resultado.Exitosos);
+        Assert.Equal(1, resultado.ConError);
+        Assert.True(mensaje.TieneError);
+        // Lo que importa: una pantalla que vuelve a consultar la base lo sigue viendo en error.
+        var restantes = await _servicio.ListarAsync();
+        Assert.Same(mensaje, Assert.Single(restantes));
+        Assert.Equal("moneda no soportada", restantes[0].MotivoError);
+    }
+
+    [Fact]
     public async Task Reprocesar_todos_con_la_bandeja_vacia_no_explota_y_devuelve_ceros()
     {
         AgregarCatalogoBase();
