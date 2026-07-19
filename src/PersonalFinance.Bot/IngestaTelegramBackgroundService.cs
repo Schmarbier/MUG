@@ -46,8 +46,24 @@ public class IngestaTelegramBackgroundService(
             return;
         }
 
-        logger.LogInformation("[ingesta] Mensaje guardado: {Id}", mensaje.Id);
+        logger.LogInformation("[ingesta] Mensaje {Id} guardado: \"{Texto}\"", mensaje.Id, mensaje.Texto);
+
         await clasificacionServicio.ClasificarAsync(mensaje, ct);
+
+        if (mensaje.Procesado)
+        {
+            logger.LogInformation("[clasificacion] Mensaje {Id} procesado correctamente", mensaje.Id);
+        }
+        else if (mensaje.TieneError)
+        {
+            logger.LogWarning("[clasificacion] Mensaje {Id} con error: {Motivo}", mensaje.Id, mensaje.MotivoError);
+        }
+        else
+        {
+            logger.LogInformation(
+                "[clasificacion] Mensaje {Id} pendiente, intento {Intentos}/3",
+                mensaje.Id, mensaje.IntentosClasificacion);
+        }
     }
 
     private Task ManejarErrorAsync(ITelegramBotClient _, Exception excepcion, CancellationToken ct)

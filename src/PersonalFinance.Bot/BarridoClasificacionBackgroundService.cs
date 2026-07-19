@@ -32,11 +32,31 @@ public class BarridoClasificacionBackgroundService(
 
         var pendientes = await mensajeRepositorio.ListarPendientesAsync(ct);
 
+        if (pendientes.Count == 0)
+        {
+            return;
+        }
+
         logger.LogInformation("[barrido] {Cantidad} mensajes pendientes", pendientes.Count);
 
         foreach (var mensaje in pendientes)
         {
             await clasificacionServicio.ClasificarAsync(mensaje, ct);
+
+            if (mensaje.Procesado)
+            {
+                logger.LogInformation("[barrido] Mensaje {Id} procesado correctamente", mensaje.Id);
+            }
+            else if (mensaje.TieneError)
+            {
+                logger.LogWarning("[barrido] Mensaje {Id} con error: {Motivo}", mensaje.Id, mensaje.MotivoError);
+            }
+            else
+            {
+                logger.LogInformation(
+                    "[barrido] Mensaje {Id} sigue pendiente, intento {Intentos}/3",
+                    mensaje.Id, mensaje.IntentosClasificacion);
+            }
         }
     }
 }
