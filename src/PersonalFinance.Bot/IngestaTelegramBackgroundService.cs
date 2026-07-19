@@ -61,8 +61,8 @@ public class IngestaTelegramBackgroundService(
         else
         {
             logger.LogInformation(
-                "[clasificacion] Mensaje {Id} pendiente, intento {Intentos}/3",
-                mensaje.Id, mensaje.IntentosClasificacion);
+                "[clasificacion] Mensaje {Id} pendiente, intento {Intentos}/{Maximo}",
+                mensaje.Id, mensaje.IntentosClasificacion, ClasificacionServicio.MaximoIntentos);
         }
     }
 

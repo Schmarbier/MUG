@@ -54,8 +54,8 @@ public class BarridoClasificacionBackgroundService(
             else
             {
                 logger.LogInformation(
-                    "[barrido] Mensaje {Id} sigue pendiente, intento {Intentos}/3",
-                    mensaje.Id, mensaje.IntentosClasificacion);
+                    "[barrido] Mensaje {Id} sigue pendiente, intento {Intentos}/{Maximo}",
+                    mensaje.Id, mensaje.IntentosClasificacion, ClasificacionServicio.MaximoIntentos);
             }
         }
     }

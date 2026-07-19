@@ -6,6 +6,16 @@ namespace PersonalFinance.Domain.Servicios;
 /// <summary>
 /// Traduce el resultado del puerto de IA en un Movimiento o en un motivo de error
 /// persistido (Principio III: ninguna salida del modelo se persiste sin validar).
+///
+/// Distingue dos clases de falla:
+/// - <see cref="MotivoFalla.ClasificadorNoDisponible"/> se reintenta: el mensaje queda
+///   PENDIENTE y solo se incrementa <c>IntentosClasificacion</c> hasta
+///   <see cref="MaximoIntentos"/>. Alcanzado el tope pasa a error con motivo
+///   "clasificador no disponible" (FR-010a / FR-010b).
+/// - El resto de los motivos (sin monto, sin descripción, moneda no soportada, sin confianza)
+///   son fallas TERMINALES de contenido: reintentar el mismo texto no cambia el resultado,
+///   así que el mensaje pasa a error en el primer intento para que el dueño lo resuelva
+///   desde la bandeja de errores.
 /// </summary>
 public class ClasificacionServicio(
     IClasificadorDeMensajes clasificador,
@@ -14,7 +24,11 @@ public class ClasificacionServicio(
     IMovimientoRepositorio movimientoRepositorio,
     IMensajeRepositorio mensajeRepositorio)
 {
-    private const int MaximoIntentos = 3;
+    /// <summary>
+    /// Tope de reintentos ante un clasificador no disponible (FR-010b). Es público para que
+    /// los logs del bot lo muestren en vez de hardcodear el número en el texto.
+    /// </summary>
+    public const int MaximoIntentos = 3;
 
     public async Task ClasificarAsync(Mensaje mensaje, CancellationToken ct = default)
     {
