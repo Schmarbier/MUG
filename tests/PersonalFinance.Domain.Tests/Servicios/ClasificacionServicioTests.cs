@@ -116,6 +116,26 @@ public sealed class ClasificacionServicioTests
         Assert.Equal("clasificador no disponible", mensaje.MotivoError);
     }
 
+    [Theory]
+    [InlineData(MotivoFalla.SinMonto, "no contiene monto")]
+    [InlineData(MotivoFalla.SinDescripcion, "no contiene descripción")]
+    [InlineData(MotivoFalla.MonedaNoSoportada, "moneda no soportada")]
+    [InlineData(MotivoFalla.SinConfianza, "no se pudo determinar la categoría con confianza")]
+    public async Task Fallas_de_contenido_son_terminales_al_primer_intento(MotivoFalla motivo, string motivoEsperado)
+    {
+        AgregarCategoria("Hogar");
+        AgregarMoneda("ARS", esBase: true, tipoDeCambio: null);
+        var mensaje = AgregarMensaje();
+        _clasificador.Resultado = new ResultadoClasificacion.Fallida(new Falla(motivo));
+
+        await _servicio.ClasificarAsync(mensaje);
+
+        Assert.True(mensaje.TieneError);
+        Assert.Equal(motivoEsperado, mensaje.MotivoError);
+        Assert.Equal(0, mensaje.IntentosClasificacion);
+        Assert.DoesNotContain(mensaje, await _mensajes.ListarPendientesAsync());
+    }
+
     [Fact]
     public async Task Falla_sin_confianza_marca_error_de_inmediato_sin_incrementar_intentos()
     {
