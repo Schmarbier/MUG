@@ -28,7 +28,7 @@ public class OllamaClasificadorAdapter(
         {
           "type": "object",
           "properties": {
-            "monto": { "type": "number" },
+            "monto": { "type": "string" },
             "tipo": { "type": "string", "enum": ["ingreso", "egreso"] },
             "categoria": { "type": "string" },
             "moneda": { "type": "string" },
@@ -57,7 +57,10 @@ public class OllamaClasificadorAdapter(
                 Prompt = ArmarPrompt(texto, categoriasActivas, monedasActivas),
                 Stream = false,
                 Format = EsquemaRespuesta,
-                Options = new RequestOptions { Temperature = 0.1f }
+                Options = new RequestOptions { Temperature = 0.1f },
+                // Evita que Ollama descargue el modelo entre mensajes: una recarga en frío mide
+                // ~6.6s en hardware de referencia, más que el timeout por llamada (SC-002).
+                KeepAlive = "30m"
             };
 
             GenerateResponseStream? ultimaRespuesta = null;
@@ -106,7 +109,7 @@ public class OllamaClasificadorAdapter(
             return Falla(MotivoFalla.SinConfianza);
         }
 
-        if (respuesta.Monto is not decimal monto || monto <= 0 || decimal.Round(monto, 2) != monto)
+        if (!MontoArgentinoParser.TryParsear(respuesta.Monto, out var monto) || monto <= 0)
         {
             return Falla(MotivoFalla.SinMonto);
         }
@@ -179,13 +182,19 @@ public class OllamaClasificadorAdapter(
             Clasificá el siguiente mensaje de gasto o ingreso personal.
 
             Reglas:
+            - "monto" es el número tal cual aparece escrito en el mensaje, en texto, SIN hacer
+              ninguna cuenta ni conversión vos mismo (por ejemplo, si el mensaje dice "10,22"
+              escribí exactamente "10,22", no "1022" ni "10.22").
             - "tipo" es "egreso" salvo que el mensaje indique explícitamente un ingreso (cobro de
               sueldo, aguinaldo, intereses, que le pagaron, que le devolvieron dinero, etc.).
             - "categoria" MUST ser exactamente uno de los títulos de la lista de abajo, tal cual
               está escrito.
             - "confianza" es un número entre 0 y 1 que indica qué tan seguro estás de la categoría
               elegida; siempre incluila.
-            - Si el mensaje no especifica moneda, no incluyas la clave "moneda".
+            - Si el mensaje no especifica ninguna moneda, no incluyas la clave "moneda".
+            - Si el mensaje menciona una moneda aunque NO esté en la lista de "Monedas disponibles"
+              (por ejemplo dólares, euros), igual incluila en "moneda" con su código de 3 letras
+              (USD, EUR, etc.) — no la descartes ni asumas la moneda por defecto.
 
             Categorías disponibles:
             {categorias}

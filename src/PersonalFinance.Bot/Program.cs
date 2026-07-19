@@ -30,7 +30,7 @@ builder.Services.AddSingleton<IOllamaApiClient>(_ =>
 builder.Services.AddScoped<IClasificadorDeMensajes>(sp => new OllamaClasificadorAdapter(
     sp.GetRequiredService<IOllamaApiClient>(),
     builder.Configuration["OLLAMA_MODEL"] ?? "llama3.1",
-    timeout: TimeSpan.FromSeconds(4.5)));
+    timeout: TimeSpan.FromSeconds(15)));
 
 builder.Services.AddSingleton<ITelegramBotClient>(_ =>
     new TelegramBotClient(builder.Configuration["TelegramBotToken"] ?? string.Empty));

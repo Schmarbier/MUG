@@ -27,7 +27,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.92}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.92}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
 
@@ -43,7 +43,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","confianza":0.92}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"Hogar","confianza":0.92}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
 
@@ -81,7 +81,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"Categoria que no existe","moneda":"ARS","confianza":0.92}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"Categoria que no existe","moneda":"ARS","confianza":0.92}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en algo raro", Categorias, Monedas);
 
@@ -94,7 +94,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":100.00,"tipo":"egreso","categoria":"Hogar","moneda":"EUR","confianza":0.92}""")));
+                """{"monto":"100.00","tipo":"egreso","categoria":"Hogar","moneda":"EUR","confianza":0.92}""")));
 
         var resultado = await adaptador.ClasificarAsync("100 EUR viaje", Categorias, Monedas);
 
@@ -107,7 +107,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":1.5}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":1.5}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
 
@@ -120,7 +120,7 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.3}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.3}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000 en super", Categorias, Monedas);
 
@@ -150,12 +150,38 @@ public sealed class OllamaClasificadorAdapterTests
     {
         var adaptador = CrearAdaptador((_, _) => Task.FromResult(
             ManejadorHttpFalso.RespuestaGenerate(
-                """{"monto":2000.00,"tipo":"egreso","categoria":"","moneda":"ARS","confianza":0.92}""")));
+                """{"monto":"2000.00","tipo":"egreso","categoria":"","moneda":"ARS","confianza":0.92}""")));
 
         var resultado = await adaptador.ClasificarAsync("2000", Categorias, Monedas);
 
         var fallida = Assert.IsType<ResultadoClasificacion.Fallida>(resultado);
         Assert.Equal(MotivoFalla.SinDescripcion, fallida.Falla.Motivo);
+    }
+
+    [Fact]
+    public async Task Monto_con_coma_decimal_se_interpreta_con_la_convencion_argentina()
+    {
+        var adaptador = CrearAdaptador((_, _) => Task.FromResult(
+            ManejadorHttpFalso.RespuestaGenerate(
+                """{"monto":"10,22","tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.92}""")));
+
+        var resultado = await adaptador.ClasificarAsync("10,22 en un libro", Categorias, Monedas);
+
+        var exitosa = Assert.IsType<ResultadoClasificacion.Exitosa>(resultado);
+        Assert.Equal(10.22m, exitosa.Clasificacion.Monto);
+    }
+
+    [Fact]
+    public async Task Monto_con_formato_ambiguo_produce_falla_sin_monto()
+    {
+        var adaptador = CrearAdaptador((_, _) => Task.FromResult(
+            ManejadorHttpFalso.RespuestaGenerate(
+                """{"monto":"10,222","tipo":"egreso","categoria":"Hogar","moneda":"ARS","confianza":0.92}""")));
+
+        var resultado = await adaptador.ClasificarAsync("10,222 rarezas", Categorias, Monedas);
+
+        var fallida = Assert.IsType<ResultadoClasificacion.Fallida>(resultado);
+        Assert.Equal(MotivoFalla.SinMonto, fallida.Falla.Motivo);
     }
 
     [Fact]
