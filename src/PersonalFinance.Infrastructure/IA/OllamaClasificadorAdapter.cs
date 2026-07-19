@@ -18,6 +18,26 @@ public class OllamaClasificadorAdapter(
 {
     private static readonly JsonSerializerOptions JsonOpciones = new(JsonSerializerDefaults.Web);
 
+    /// <summary>
+    /// Salida estructurada de Ollama (constrained decoding): a diferencia de Format="json" —que
+    /// solo garantiza sintaxis JSON válida—, este esquema obliga a que "confianza" y el resto de
+    /// las claves requeridas estén siempre presentes. Sin esto, el modelo omite "confianza" en la
+    /// mayoría de las respuestas y todo termina en Falla(SinConfianza) (medido: SC-001 caía a ~13%).
+    /// </summary>
+    private static readonly JsonElement EsquemaRespuesta = JsonDocument.Parse("""
+        {
+          "type": "object",
+          "properties": {
+            "monto": { "type": "number" },
+            "tipo": { "type": "string", "enum": ["ingreso", "egreso"] },
+            "categoria": { "type": "string" },
+            "moneda": { "type": "string" },
+            "confianza": { "type": "number" }
+          },
+          "required": ["monto", "tipo", "categoria", "confianza"]
+        }
+        """).RootElement;
+
     public async Task<ResultadoClasificacion> ClasificarAsync(
         string texto,
         IReadOnlyList<CategoriaActiva> categoriasActivas,
@@ -36,7 +56,7 @@ public class OllamaClasificadorAdapter(
                 Model = modelo,
                 Prompt = ArmarPrompt(texto, categoriasActivas, monedasActivas),
                 Stream = false,
-                Format = "json",
+                Format = EsquemaRespuesta,
                 Options = new RequestOptions { Temperature = 0.1f }
             };
 
@@ -156,9 +176,16 @@ public class OllamaClasificadorAdapter(
         var monedas = string.Join(", ", monedasActivas.Select(m => m.Codigo));
 
         return $"""
-            Clasificá el siguiente mensaje de gasto o ingreso personal en JSON estricto con
-            las claves monto, tipo ("ingreso" o "egreso"), categoria, moneda y confianza (0 a 1).
-            Si el mensaje no especifica moneda, omití la clave moneda.
+            Clasificá el siguiente mensaje de gasto o ingreso personal.
+
+            Reglas:
+            - "tipo" es "egreso" salvo que el mensaje indique explícitamente un ingreso (cobro de
+              sueldo, aguinaldo, intereses, que le pagaron, que le devolvieron dinero, etc.).
+            - "categoria" MUST ser exactamente uno de los títulos de la lista de abajo, tal cual
+              está escrito.
+            - "confianza" es un número entre 0 y 1 que indica qué tan seguro estás de la categoría
+              elegida; siempre incluila.
+            - Si el mensaje no especifica moneda, no incluyas la clave "moneda".
 
             Categorías disponibles:
             {categorias}
