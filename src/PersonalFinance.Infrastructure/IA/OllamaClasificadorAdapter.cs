@@ -23,12 +23,18 @@ public class OllamaClasificadorAdapter(
     /// solo garantiza sintaxis JSON válida—, este esquema obliga a que "confianza" y el resto de
     /// las claves requeridas estén siempre presentes. Sin esto, el modelo omite "confianza" en la
     /// mayoría de las respuestas y todo termina en Falla(SinConfianza) (medido: SC-001 caía a ~13%).
+    ///
+    /// "monto" lleva además un "pattern": sin él, el campo es un string libre y el modelo a veces
+    /// usa el primer campo de texto que encuentra como "borrador" para razonar en criollo antes de
+    /// llenar el resto (p. ej. "Nota: el mensaje menciona..."), porque un tipo "string" sin
+    /// restricciones no está acotado por la gramática como sí lo están los enum. El pattern fuerza
+    /// que solo pueda contener dígitos, puntos y comas (medido contra Ollama real).
     /// </summary>
     private static readonly JsonElement EsquemaRespuesta = JsonDocument.Parse("""
         {
           "type": "object",
           "properties": {
-            "monto": { "type": "string" },
+            "monto": { "type": "string", "pattern": "^[0-9]+([.,][0-9]+)*$" },
             "tipo": { "type": "string", "enum": ["ingreso", "egreso"] },
             "categoria": { "type": "string" },
             "moneda": { "type": "string" },
