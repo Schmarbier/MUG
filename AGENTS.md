@@ -11,6 +11,8 @@ clasifica como movimientos (ingreso/egreso) por categoría, con resumen mensual.
 - Telegram.Bot (canal de mensajes) · OllamaSharp (cliente del modelo).
 - Ollama corre aparte: modelo `llama3.1` local, configurable vía env `OLLAMA_MODEL`.
 
+## Architecture conventions
+
 ## Configuración / secretos
 El token del bot de Telegram **no se commitea**. Se lee de `IConfiguration` con la clave
 `TelegramBotToken`, así que puede venir de User Secrets (dev local) o de variable de entorno.
@@ -61,3 +63,5 @@ dotnet test
 - NO agregar sistema de usuarios ni login: la app es mono-usuario. (Fuera de alcance)
 - NO re-guardar mensajes ya ingeridos: deduplicar por `message_id` de Telegram y marcar
   `procesado`; el canal es Telegram, no WhatsApp. (Riesgo / Dependencias)
+
+## Domain glossary
