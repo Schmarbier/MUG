@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 *.db
 *.db-shm
 *.db-wal
+.daw-state.json
+.daw-paused/
+.daw-sessions/
+.daw-journal.jsonl
