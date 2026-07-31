@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Placeholder del Bloque 1: la solución declara los 5 proyectos.
+    El Bloque 2 completa este proyecto (ProjectReference a Domain y paquetes de EF Core/SQLite);
+    el Bloque 3 agrega Telegram.Bot y el Bloque 4 OllamaSharp.
+  -->
+
+</Project>

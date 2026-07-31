@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Placeholder del Bloque 1: la solución declara los 5 proyectos.
+    El Bloque 5 lo convierte en el composition root (OutputType=Exe, Program.cs,
+    referencias a Domain e Infrastructure). Mientras no tenga punto de entrada queda como
+    biblioteca para que `dotnet build` compile la solución completa.
+  -->
+
+</Project>
