@@ -1,13 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!--
-    Placeholder del Bloque 1: la solución declara los 5 proyectos.
-    El Bloque 2 lo convierte en proyecto de test (xunit + Microsoft.NET.Test.Sdk y referencia a
-    Infrastructure). Hasta entonces no se marca como IsTestProject: un proyecto de test sin
-    tests haría fallar la corrida de `dotnet test`.
-  -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PersonalFinance.Infrastructure\PersonalFinance.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>
