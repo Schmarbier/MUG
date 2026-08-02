@@ -194,6 +194,72 @@ public class ClasificadorOllamaTests
         Assert.IsType<ResultadoClasificacion.Clasificado>(resultado);
     }
 
+    // Input validation del Bloque 4: la respuesta del modelo tiene tope de 8 KB. Es la entrada
+    // menos confiable del sistema, así que pasado el tope se corta el streaming y se devuelve
+    // NoDisponible en vez de intentar interpretar lo que llegó. El JSON de abajo es válido salvo
+    // por el relleno: sin el tope se interpretaría como Clasificado, así que lo único que lo
+    // convierte en NoDisponible es el corte por tamaño.
+    [Fact]
+    public async Task ClasificarAsync_RespuestaMayorAOchoKb_DevuelveNoDisponible()
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCon(new
+        {
+            monto = 10000,
+            tipo = EsquemaClasificacion.Entro,
+            categoria = "Sueldo",
+            relleno = new string('r', 8 * 1024),
+        }));
+
+        Assert.IsType<ResultadoClasificacion.NoDisponible>(await ClasificarAsync(handler));
+    }
+
+    // El otro lado del tope de 8 KB: una respuesta larga pero por debajo del límite se clasifica
+    // normal. Sin este test, bajar el tope a cero pasaría desapercibido y todo mensaje quedaría
+    // sin clasificar para siempre.
+    [Fact]
+    public async Task ClasificarAsync_RespuestaJustoPorDebajoDeOchoKb_DevuelveClasificado()
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCon(new
+        {
+            monto = 10000,
+            tipo = EsquemaClasificacion.Entro,
+            categoria = "Sueldo",
+            relleno = new string('r', 8 * 1000),
+        }));
+
+        Assert.IsType<ResultadoClasificacion.Clasificado>(await ClasificarAsync(handler));
+    }
+
+    // Precondición de la API: un texto vacío o en blanco no es "un mensaje sin descripción" —eso
+    // es SinDescripcion, un camino del PRD— sino un error del llamador. El Bloque 3 ya garantiza
+    // que ningún Mensaje persistido tenga el texto vacío.
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task ClasificarAsync_TextoVacioOEnBlanco_LanzaArgumentException(string texto)
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCruda("{}"));
+
+        var excepcion = await Assert.ThrowsAsync<ArgumentException>(
+            () => Crear(handler).ClasificarAsync(texto, Activas, CancellationToken.None));
+
+        Assert.Equal("texto", excepcion.ParamName);
+    }
+
+    // Precondición de la API: 4096 es el máximo que la entidad Mensaje acepta y al que el
+    // Bloque 3 trunca en el borde. Un texto más largo que eso no pudo salir de la ingesta.
+    [Fact]
+    public async Task ClasificarAsync_TextoMayorAlMaximo_LanzaArgumentOutOfRangeException()
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCruda("{}"));
+        var texto = new string('t', Mensaje.TextoMaximo + 1);
+
+        var excepcion = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => Crear(handler).ClasificarAsync(texto, Activas, CancellationToken.None));
+
+        Assert.Equal("texto", excepcion.ParamName);
+    }
+
     // Sad path del error documentado: clasificar sin categorías es un error de programación, no
     // un caso de negocio, así que lanza en vez de devolver un resultado.
     [Fact]

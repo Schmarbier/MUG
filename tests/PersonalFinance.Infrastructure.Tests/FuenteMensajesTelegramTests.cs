@@ -48,6 +48,23 @@ public class FuenteMensajesTelegramTests
         Assert.Equal((ChatAutorizado, 10L, "$10.000 sueldo"), (mensaje.ChatId, mensaje.MessageId, mensaje.Texto));
     }
 
+    // Precondición de la API: el máximo de mensajes por corrida es el límite de M-04, que el
+    // caso de uso fija en 100. Pedir cero o menos no es un caso de negocio —"no leas nada"— sino
+    // un error del llamador, y se rechaza antes de gastar una llamada a Telegram.
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task LeerAsync_MaximoMenorAUno_LanzaArgumentOutOfRangeException(int maximo)
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCon());
+
+        var excepcion = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => Crear(handler).LeerAsync(maximo, CancellationToken.None));
+
+        Assert.Equal("maximo", excepcion.ParamName);
+        Assert.Equal(0, handler.Llamadas);
+    }
+
     // Sad path del error documentado: un update que no es mensaje de texto (foto, sticker,
     // audio) se descarta sin guardar. No es un error.
     [Fact]

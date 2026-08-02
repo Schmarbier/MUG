@@ -7,22 +7,47 @@ namespace PersonalFinance.Infrastructure.Tests;
 
 public class PromptClasificacionTests
 {
+    private const string Encabezado = "Categorias disponibles:";
+
     private static readonly Categoria[] Activas =
     [
         new("Hogar", "Gastos de la casa."),
         new("Sueldo", "Ingresos por trabajo."),
     ];
 
-    // Regresión: el prompt enumera las categorías que recibe. Una categoría desactivada no llega
-    // acá, así que el modelo no puede elegirla (FR-08).
+    // Regresión: el prompt enumera exactamente las categorías que recibe —ni una más, ni una
+    // menos— cada una con su descripción, que es lo que el modelo usa para elegir.
+    //
+    // El nombre dice "las que recibe" y no "las activas" a propósito: acá no hay ninguna
+    // categoría desactivada que excluir. Esta función no filtra nada ni puede hacerlo, porque
+    // sólo ve la lista que le pasan. El filtro de FR-08 vive en RepositorioCategoriasEfCore y su
+    // test es ObtenerActivasAsync_ConActivasYDesactivadas_DevuelveSoloLasActivas. Lo que este
+    // test sostiene es el otro eslabón de la cadena: que lo filtrado allá llegue intacto al
+    // prompt, sin agregados propios.
     [Fact]
-    public void PromptClasificacion_IncluyeLasCategoriasActivasYNoLasDesactivadas()
+    public void ConstruirSystemPrompt_CategoriasRecibidas_EnumeraExactamenteEsasConSuDescripcion()
     {
         var sistema = PromptClasificacion.ConstruirSystemPrompt(Activas);
 
-        Assert.Contains("Hogar", sistema, StringComparison.Ordinal);
-        Assert.Contains("Sueldo", sistema, StringComparison.Ordinal);
-        Assert.DoesNotContain("Ocio", sistema, StringComparison.Ordinal);
+        Assert.Equal(
+            ["- Hogar: Gastos de la casa.", "- Sueldo: Ingresos por trabajo."],
+            Listado(sistema));
+    }
+
+    /// <summary>
+    /// Los ítems del listado de categorías: lo que va después del encabezado, que es lo único
+    /// que depende de la lista recibida. Las viñetas de las instrucciones fijas quedan afuera
+    /// por venir antes del encabezado.
+    /// </summary>
+    private static IEnumerable<string> Listado(string sistema)
+    {
+        var encabezado = sistema.IndexOf(Encabezado, StringComparison.Ordinal);
+        Assert.True(encabezado >= 0, $"El system prompt no tiene el encabezado '{Encabezado}'.");
+
+        return sistema[(encabezado + Encabezado.Length)..]
+            .Split('\n')
+            .Select(linea => linea.Trim())
+            .Where(linea => linea.StartsWith("- ", StringComparison.Ordinal));
     }
 
     // Valida M-01: el texto del mensaje viaja como rol user y nunca se concatena dentro del

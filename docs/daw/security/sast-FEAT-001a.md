@@ -121,11 +121,51 @@ actual, con herencia deshabilitada en Windows (`SetAccessRuleProtection`) y `060
 
 ---
 
-## Resumen
+## Resumen — Ronda 1
 
 ```
 Total: 11 categorías limpias, 0 vulnerabilidades (0 Critical, 0 High, 0 Medium)
 Supresiones: 0
 Informativos: 1 (tokens sintéticos en fixtures de test — falso positivo de patrón)
+Gate: PASSED → gates.sast = true
+```
+
+---
+
+# Ronda 2 — re-escaneo tras el bucle correctivo (2026-08-02)
+
+**Motivo:** bucle correctivo VERIFY → CODE para cerrar W7 (tope de 8 KB sin test) y W8
+(`RepositorioCategoriasEfCore` sin cobertura + test de prompt que no verificaba nada). El gate
+`sast` se limpió y hay que volver a ganárselo.
+
+**Delta escaneado:** 4 archivos, **todos de test**. `git diff --stat -- src/` vacío: el código
+productivo quedó byte a byte igual al de la ronda 1.
+
+- `tests/…/ClasificadorOllamaTests.cs` (modificado)
+- `tests/…/FuenteMensajesTelegramTests.cs` (modificado)
+- `tests/…/PromptClasificacionTests.cs` (modificado)
+- `tests/…/RepositorioCategoriasTests.cs` (nuevo)
+
+| Regla | Resultado sobre el delta |
+|---|---|
+| F-SAST-01 secretos | ✅ Único hit: el fixture sintético preexistente de `FuenteMensajesTelegramTests.cs:12`, ya dispuesto como falso positivo en la ronda 1. Sin secretos nuevos. |
+| F-SAST-02 SQL | ✅ Sin `CommandText`/`FromSql`/`ExecuteSql`. `RepositorioCategoriasTests` va por EF Core y el tracker. |
+| F-SAST-03/04 comandos y deserialización | ✅ Sin `Process.Start`, `BinaryFormatter`, `Assembly.Load`. |
+| F-SAST-05 path traversal | ✅ Sin `Path.`/`File.`/`Directory.` en el delta. |
+| F-SAST-07 SSRF | ✅ Los dos `HttpClient` nuevos se construyen sobre `HandlerFalso`: no sale un solo byte a la red. |
+| F-SAST-13/16 dependencias | ✅ 5 proyectos, 0 paquetes vulnerables. Sin paquetes nuevos. |
+| Resto de categorías | ✅ Sin cambios respecto de la ronda 1: el código productivo no se tocó. |
+
+**Nota sobre la evidencia de TDD.** El implementador mutó código productivo a propósito para
+demostrar que los tests nuevos fallan (sacar el `Where(c => c.Activa)`, poner
+`MaximoRespuesta = int.MaxValue` y `= 0`, agregar una categoría inventada al prompt). Todas las
+mutaciones fueron revertidas. Verificado de forma independiente por el orquestador con
+`git status` y `git diff --stat -- src/`: **cero cambios bajo `src/`**, ni en el working tree ni en
+el índice.
+
+```
+Total ronda 2: 0 vulnerabilidades (0 Critical, 0 High, 0 Medium)
+Supresiones: 0
+Informativos: 1 (el mismo de la ronda 1, sin cambios)
 Gate: PASSED → gates.sast = true
 ```
