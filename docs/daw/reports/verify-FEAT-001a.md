@@ -202,3 +202,108 @@ Resultado: PASSED → gates.verify = true
    correctivo a PLAN, o dejar el desvío asentado por escrito.
 5. **W9, W10, W11, W12** — test acoplado al puerto 11435, propiedad muerta, rama sin documentar,
    ruta por defecto sin test.
+
+---
+
+# Ronda 2 — tras el bucle correctivo (2026-08-02)
+
+**Veredicto:** ✅ **PASSED** — W7 y W8 cerrados y verificados. 0 FAIL.
+
+La ronda 1 ya había dado PASSED; el bucle a CODE lo pidió el usuario para cerrar los dos huecos de
+cobertura antes de release, no por un gate en rojo. Esto queda asentado porque explica por qué hay
+una ronda 2 sobre una verificación que no había fallado.
+
+## Qué cambió
+
+Sólo tests. `git diff -- src/` vacío entre la ronda 1 y la 2: el código productivo es byte a byte
+el mismo. 9 casos nuevos + 1 reescrito; suite 111 → 120.
+
+| Test | Cubre |
+|---|---|
+| `ClasificarAsync_RespuestaMayorAOchoKb_DevuelveNoDisponible` | W7 — el tope |
+| `ClasificarAsync_RespuestaJustoPorDebajoDeOchoKb_DevuelveClasificado` | W7 — el otro lado del borde |
+| `ClasificarAsync_TextoVacioOEnBlanco_LanzaArgumentException` (×2) | W7 — precondición |
+| `ClasificarAsync_TextoMayorAlMaximo_LanzaArgumentOutOfRangeException` | W7 — precondición |
+| `LeerAsync_MaximoMenorAUno_LanzaArgumentOutOfRangeException` (×2) | W7 — precondición |
+| `ObtenerActivasAsync_ConActivasYDesactivadas_DevuelveSoloLasActivas` | W8a — FR-08 |
+| `ObtenerActivasAsync_TodasDesactivadas_DevuelveListaVacia` | W8a — sad path |
+| `ConstruirSystemPrompt_CategoriasRecibidas_EnumeraExactamenteEsasConSuDescripcion` | W8b — reescrito |
+
+## Verificación de que los huecos se cerraron
+
+No basta con que suba el promedio: se verificó archivo por archivo.
+
+| Archivo | Ronda 1 | Ronda 2 |
+|---|---|---|
+| `RepositorioCategoriasEfCore.cs` | **0%** (0/9) | **100%** (9/9) |
+| `ClasificadorOllama.cs` | 93.7% (104/111) | **95.5%** (106/111) |
+| `RepositorioMensajesEfCore.cs` | 100% | 100% |
+| `RepositorioMovimientosEfCore.cs` | 100% | 100% |
+
+La rama del tope de 8 KB (`ClasificadorOllama.cs:110`) figuraba como `L110(1/2)` en la lista de
+ramas incompletas de la ronda 1 y **ya no aparece**. Los tres adaptadores EF de repositorio quedan
+en 100%.
+
+## F-VER-03 — Cobertura, ronda 2
+
+| | Ronda 1 | Ronda 2 | |
+|---|---|---|---|
+| Líneas | 92.4% | **93.9%** (692/737) | ✅ |
+| Ramas | 81.9% | **82.6%** (119/144) | ✅ |
+| Métodos | 86.7% | **86.7%** (39/45) | ✅ |
+
+Infrastructure: líneas 90.9% → 93.0%, ramas 76.4% → 77.4%. Las ramas de Infrastructure siguen
+debajo del 80% por el mismo motivo de la ronda 1 —los `if (OperatingSystem.IsWindows())` de las
+ACL, incubrables desde una sola máquina— y el agregado sobre `src/` cumple el umbral.
+
+## Gates re-ganados
+
+```
+/daw-test         120 tests (51 Domain + 67 Infrastructure + 2 integración), 0 fallidos
+                  accuracy 94.0 % (47/50) — idéntica a la ronda 1: la medición es reproducible
+                  latencia p90 0.66 s (p99 7.39 s, outlier de modelo frío; el gate es p90)
+type checker      0 errores, 0 advertencias
+/daw-security-sast ronda 2: 0 vulnerabilidades (ver docs/daw/security/sast-FEAT-001a.md)
+```
+
+## Calidad de la evidencia
+
+Los tests nuevos se validaron por **mutación deliberada** del código productivo, revertida en el
+acto y verificada de forma independiente por el orquestador (`git diff --stat -- src/` vacío):
+
+- Sacar `.Where(c => c.Activa)` → los 2 tests de FR-08 fallan.
+- `MaximoRespuesta = int.MaxValue` y quitar las guardas → 6 tests fallan.
+- `MaximoRespuesta = 0` → falla el test del borde inferior.
+- Agregar una categoría inventada a `ConstruirSystemPrompt` → **el test viejo seguía en verde**;
+  el reescrito falla. Ésa es la prueba de que W8b no era una objeción de estilo.
+
+## Hallazgo nuevo, diferido a ticket propio
+
+**El spec declara un log que no está implementado.** Bloque 4 → *Error handling*: *"Respuesta que no
+es JSON parseable → `NoDisponible`. Se loguea el cuerpo truncado, sin el texto del mensaje."*
+`ClasificadorOllama` no recibe `ILogger` y no loguea nada. La ronda 1 no lo detectó: verificó que
+devolviera `NoDisponible` —que lo hace— y el "se loguea" pasó de largo. Lo encontró el implementador
+del bucle correctivo, mirando el mismo código desde la obligación de escribir un test.
+
+Consecuencia operativa: hoy una respuesta cortada por el tope de 8 KB es **indistinguible de Ollama
+caído** desde afuera; las dos terminan en `NoDisponible` y en silencio.
+
+Decisión del usuario: **no se arregla en este ticket.** Es observabilidad, no corrección —nada se
+clasifica mal por su ausencia— pero es código productivo que cambia el constructor de
+`ClasificadorOllama`, toca `AgregarClasificador` y tiene implicancias de M-03 (que el log no filtre
+el texto del mensaje). Va como ticket propio después de cerrar FEAT-001a.
+
+Otros dos hallazgos del mismo origen, menores: el tope de 8 KB compara **caracteres, no bytes**
+(en UTF-8 con acentos deja pasar hasta ~16 KB reales, mientras el spec dice "8 KB"), y `Categoria`
+no expone método de desactivación, así que FR-08 filtra por un flag que ningún camino del dominio
+puede poner en `false` (coherente con el alcance: RF-16/RF-28 son de otro sub-ticket).
+
+## Warnings que siguen abiertos
+
+W1, W2, W3, W4, W5, W6, W9, W10, W11, W12 — sin cambios respecto de la ronda 1. Ninguno bloquea.
+Los tres del spec desincronizado (W2, W3, W6) siguen siendo la deuda de mayor valor: el código está
+bien, el documento miente, y arreglarlo exige un bucle a PLAN.
+
+```
+Ronda 2 — Resultado: PASSED → gates.verify = true
+```
