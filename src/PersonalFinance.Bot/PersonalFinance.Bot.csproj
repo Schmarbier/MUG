@@ -1,10 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Placeholder del Bloque 1: la solución declara los 5 proyectos.
-    El Bloque 5 lo convierte en el composition root (OutputType=Exe, Program.cs,
-    referencias a Domain e Infrastructure). Mientras no tenga punto de entrada queda como
-    biblioteca para que `dotnet build` compile la solución completa.
+    Composition root: el único proyecto que arma el contenedor de DI y lee IConfiguration.
   -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Habilita `dotnet user-secrets set "TelegramBotToken" "..."`: el token no se commitea. -->
+    <UserSecretsId>personalfinance-bot</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PersonalFinance.Domain\PersonalFinance.Domain.csproj" />
+    <ProjectReference Include="..\PersonalFinance.Infrastructure\PersonalFinance.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
+using PersonalFinance.Domain.CasosDeUso;
 using PersonalFinance.Domain.Puertos;
 
 namespace PersonalFinance.Infrastructure.Ollama;
@@ -33,6 +34,11 @@ public static class AgregarClasificadorExtensions
             modelo));
 
         servicios.AddScoped<IClasificador, ClasificadorOllama>();
+
+        // Mismo criterio que AgregarTelegram con la ingesta: la extensión que habilita el
+        // adaptador registra el caso de uso que lo consume, así el composition root sólo llama
+        // extensiones y no registra servicios sueltos.
+        servicios.AddScoped<ClasificarMensajesPendientes>();
 
         return servicios;
     }

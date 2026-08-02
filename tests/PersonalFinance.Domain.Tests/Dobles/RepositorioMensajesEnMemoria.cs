@@ -27,6 +27,12 @@ internal sealed class RepositorioMensajesEnMemoria : IRepositorioMensajes
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Filtra como la consulta real: sólo lo que no está procesado ni en error (FR-06). Sin el
+    /// filtro, el doble mentiría y un mensaje ya procesado volvería a clasificarse en el test
+    /// aunque en producción no lo hiciera.
+    /// </summary>
     public Task<IReadOnlyList<Mensaje>> ObtenerPendientesAsync(CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<Mensaje>>(Pendientes);
+        Task.FromResult<IReadOnlyList<Mensaje>>(
+            [.. Pendientes.Where(m => !m.Procesado && !m.Error)]);
 }
