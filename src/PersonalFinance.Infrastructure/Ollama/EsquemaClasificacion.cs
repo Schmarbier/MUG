@@ -12,8 +12,17 @@ namespace PersonalFinance.Infrastructure.Ollama;
 /// </summary>
 public static class EsquemaClasificacion
 {
-    public const string Ingreso = "ingreso";
-    public const string Egreso = "egreso";
+    /// <summary>
+    /// El modelo contesta con verbos, no con los sustantivos del dominio. Medido: con
+    /// <c>ingreso</c>/<c>egreso</c> el campo salía casi sin mirar el texto —"Pagué la luz" daba
+    /// ingreso—; con <c>salio</c>/<c>entro</c> acierta. Son términos contables poco frecuentes
+    /// contra verbos que describen lo que la persona hizo, que es sobre lo que el modelo razona
+    /// bien. La traducción a <see cref="Domain.Entidades.TipoMovimiento"/> es del adaptador: el
+    /// dominio sigue hablando de ingreso y egreso.
+    /// </summary>
+    public const string Entro = "entro";
+
+    public const string Salio = "salio";
 
     public static JsonObject Crear(IReadOnlyList<Categoria> categoriasActivas)
     {
@@ -25,25 +34,33 @@ public static class EsquemaClasificacion
             titulos.Add(categoria.Titulo);
         }
 
+        // El orden de las propiedades no es cosmético: la decodificación restringida obliga al
+        // modelo a emitirlas en este orden, así que cada campo se decide con lo ya escrito como
+        // contexto. Con "tipo" adelante, el modelo tenía que elegir dirección antes de haber
+        // razonado nada, y arrastraba la categoría detrás del error. Con la categoría primero
+        // —que es lo que mejor resuelve— el resto queda anclado.
         return new JsonObject
         {
             ["type"] = "object",
             ["properties"] = new JsonObject
             {
-                ["monto"] = new JsonObject { ["type"] = "number" },
-                ["tipo"] = new JsonObject
-                {
-                    ["type"] = "string",
-                    ["enum"] = new JsonArray(Ingreso, Egreso),
-                },
                 ["categoria"] = new JsonObject
                 {
                     ["type"] = "string",
                     ["enum"] = titulos,
                 },
-                ["descripcion"] = new JsonObject { ["type"] = "string" },
+                ["monto"] = new JsonObject { ["type"] = "number" },
+                ["tipo"] = new JsonObject
+                {
+                    ["type"] = "string",
+                    ["enum"] = new JsonArray(Salio, Entro),
+                },
             },
-            ["required"] = new JsonArray("monto", "tipo", "categoria", "descripcion"),
+            // Sin campo "descripcion": no hay dónde guardarla —Movimiento no la tiene— y usar
+            // "el modelo dejó ese campo vacío" como señal de SinDescripcion resultó ser una
+            // medición de la prolijidad del modelo, no del texto. La medición de accuracy lo
+            // mostró: 8 de 13 fallos eran mensajes bien clasificados que caían acá.
+            ["required"] = new JsonArray("categoria", "monto", "tipo"),
         };
     }
 }

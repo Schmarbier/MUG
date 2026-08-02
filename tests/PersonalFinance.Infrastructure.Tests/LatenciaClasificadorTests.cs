@@ -4,12 +4,17 @@ using PersonalFinance.Infrastructure.Ollama;
 using PersonalFinance.Infrastructure.Tests.Datos;
 using PersonalFinance.Infrastructure.Tests.Integracion;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PersonalFinance.Infrastructure.Tests;
 
 public class LatenciaClasificadorTests
 {
     private static readonly TimeSpan MaximoP90 = TimeSpan.FromSeconds(5);
+
+    private readonly ITestOutputHelper _salida;
+
+    public LatenciaClasificadorTests(ITestOutputHelper salida) => _salida = salida;
 
     // Sad path del error documentado: si algún mensaje del dataset no se clasificó, el p90 se
     // estaría calculando sobre 49 de 50 y no sostendría lo que afirma AC-14. La muestra
@@ -71,6 +76,11 @@ public class LatenciaClasificadorTests
         }
 
         var p90 = MuestraLatencia.Percentil(mediciones, 90);
+
+        _salida.WriteLine(
+            $"p50 {MuestraLatencia.Percentil(mediciones, 50).TotalSeconds:F2}s · " +
+            $"p90 {p90.TotalSeconds:F2}s (máximo 5s) · " +
+            $"p99 {MuestraLatencia.Percentil(mediciones, 99).TotalSeconds:F2}s");
 
         Assert.True(
             p90 < MaximoP90,

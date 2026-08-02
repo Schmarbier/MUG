@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using OllamaSharp;
+using OllamaSharp.Models;
 using OllamaSharp.Models.Chat;
 using PersonalFinance.Domain.Clasificacion;
 using PersonalFinance.Domain.Entidades;
@@ -49,12 +50,27 @@ public sealed class ClasificadorOllama : IClasificador
                 "No se puede clasificar sin categorías activas.", nameof(categoriasActivas));
         }
 
+        if (SinDescripcionUtilizable(texto))
+        {
+            // Se resuelve sobre el texto de entrada y antes de llamar al modelo. AC-10 habla del
+            // texto que no describe nada —"$3.000" a secas—, y eso es una propiedad del input:
+            // preguntárselo al modelo era medir si el modelo completa un campo, que es otra cosa.
+            // De paso, ahorra la llamada.
+            return new ResultadoClasificacion.SinDescripcion();
+        }
+
         var respuesta = await PedirAsync(texto, categoriasActivas, cancellationToken);
 
         return respuesta is null
             ? new ResultadoClasificacion.NoDisponible()
             : Interpretar(respuesta, categoriasActivas);
     }
+
+    /// <summary>
+    /// Un texto sin una sola letra —sólo importe, símbolos y puntuación— no describe ningún
+    /// movimiento: es un número suelto.
+    /// </summary>
+    private static bool SinDescripcionUtilizable(string texto) => !texto.Any(char.IsLetter);
 
     /// <summary>
     /// Una sola llamada al modelo, sin reintentos: reintentar comprometería el p90 de NFR-02.
@@ -72,6 +88,15 @@ public sealed class ClasificadorOllama : IClasificador
             Messages = PromptClasificacion.Construir(texto, categoriasActivas),
             Format = EsquemaClasificacion.Crear(categoriasActivas),
             Stream = false,
+            Options = new RequestOptions
+            {
+                // Clasificar no es escribir: no se quiere variedad, se quiere la mejor
+                // respuesta. Con la temperatura 0.8 que Ollama trae por defecto, el mismo
+                // mensaje se clasifica distinto entre corridas —lo vimos: un mensaje acertaba
+                // o fallaba según la tirada— y la accuracy medida deja de ser reproducible.
+                Temperature = 0f,
+                Seed = 1,
+            },
         };
 
         var contenido = new StringBuilder();
@@ -132,11 +157,6 @@ public sealed class ClasificadorOllama : IClasificador
                 return new ResultadoClasificacion.SinMonto();
             }
 
-            if (string.IsNullOrWhiteSpace(LeerTexto(raiz, "descripcion")))
-            {
-                return new ResultadoClasificacion.SinDescripcion();
-            }
-
             if (LeerTipo(raiz) is not { } tipo)
             {
                 return new ResultadoClasificacion.TipoNoReconocido();
@@ -169,11 +189,14 @@ public sealed class ClasificadorOllama : IClasificador
         };
     }
 
+    /// <summary>
+    /// Traduce el verbo que contesta el modelo al vocabulario del dominio.
+    /// </summary>
     private static TipoMovimiento? LeerTipo(JsonElement raiz) => LeerTexto(raiz, "tipo") switch
     {
-        var tipo when string.Equals(tipo, EsquemaClasificacion.Ingreso, StringComparison.OrdinalIgnoreCase)
+        var tipo when string.Equals(tipo, EsquemaClasificacion.Entro, StringComparison.OrdinalIgnoreCase)
             => TipoMovimiento.Ingreso,
-        var tipo when string.Equals(tipo, EsquemaClasificacion.Egreso, StringComparison.OrdinalIgnoreCase)
+        var tipo when string.Equals(tipo, EsquemaClasificacion.Salio, StringComparison.OrdinalIgnoreCase)
             => TipoMovimiento.Egreso,
         _ => null,
     };

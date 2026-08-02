@@ -15,12 +15,30 @@ public sealed class SeedCategorias
     /// </summary>
     private static readonly (string Titulo, string Descripcion)[] Semilla =
     [
-        ("Hogar", "Gastos de la casa: comida, supermercado, alquiler, expensas y mantenimiento."),
-        ("Ocio", "Salidas, restaurantes, entretenimiento, viajes, suscripciones y hobbies."),
-        ("Servicios", "Luz, gas, agua, internet, telefonía, seguros e impuestos."),
-        ("Sueldo", "Ingresos por trabajo: sueldo, aguinaldo, honorarios y pagos de clientes."),
-        ("Otros", "Categoría de descarte: lo que no encaja en ninguna de las anteriores."),
+        ("Hogar",
+            "Gastos de la casa: comida, supermercado, verdulería, carnicería, alquiler, " +
+            "expensas, limpieza y arreglos del hogar."),
+        ("Ocio",
+            "Tiempo libre y entretenimiento: salidas, bares, restaurantes, cine, recitales, " +
+            "viajes, streaming y libros. No incluye regalos, ropa ni cuidado personal."),
+        ("Servicios",
+            "Cuentas que se pagan periódicamente: luz, gas, agua, internet, telefonía, " +
+            "seguros, prepaga e impuestos."),
+        ("Sueldo",
+            "Plata que entra por trabajo: sueldo, aguinaldo, adelantos, horas extras, " +
+            "honorarios y pagos de clientes."),
+        ("Otros",
+            "Lo que no encaja en las anteriores: regalos, ropa, cuidado personal, préstamos, " +
+            "donaciones, ventas de cosas usadas y reintegros."),
     ];
+
+    /// <summary>
+    /// Las categorías del seed como entidades. Existe para que el prompt del clasificador se
+    /// mida en los tests con las mismas descripciones que corren en producción: duplicarlas en
+    /// el test hacía que la accuracy medida fuera la de otro prompt.
+    /// </summary>
+    public static IReadOnlyList<Categoria> Definiciones() =>
+        [.. Semilla.Select(s => new Categoria(s.Titulo, s.Descripcion))];
 
     private readonly PersonalFinanceDbContext _contexto;
 

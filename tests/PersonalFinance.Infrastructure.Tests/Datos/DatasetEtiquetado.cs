@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PersonalFinance.Domain.Entidades;
+using PersonalFinance.Infrastructure.Persistencia;
 
 namespace PersonalFinance.Infrastructure.Tests.Datos;
 
@@ -46,15 +47,9 @@ internal static class DatasetEtiquetado
     }
 
     /// <summary>
-    /// Las categorías del seed como entidades, para pasárselas al clasificador con las mismas
-    /// descripciones que usa la aplicación real.
+    /// Las categorías reales del seed. Se piden a <see cref="SeedCategorias"/> en vez de
+    /// copiarlas: si el test las duplicara, la accuracy medida sería la de un prompt que no es
+    /// el que corre en producción.
     /// </summary>
-    public static IReadOnlyList<Categoria> Categorias() =>
-    [
-        new("Hogar", "Gastos de la casa: comida, supermercado, alquiler, expensas y mantenimiento."),
-        new("Ocio", "Salidas, restaurantes, entretenimiento, viajes, suscripciones y hobbies."),
-        new("Servicios", "Luz, gas, agua, internet, telefonía, seguros e impuestos."),
-        new("Sueldo", "Ingresos por trabajo: sueldo, aguinaldo, honorarios y pagos de clientes."),
-        new("Otros", "Categoría de descarte: lo que no encaja en ninguna de las anteriores."),
-    ];
+    public static IReadOnlyList<Categoria> Categorias() => SeedCategorias.Definiciones();
 }

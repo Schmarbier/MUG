@@ -56,9 +56,8 @@ public class ClasificadorOllamaTests
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
             monto = 10000,
-            tipo = "ingreso",
+            tipo = EsquemaClasificacion.Entro,
             categoria = "Sueldo",
-            descripcion = "sueldo de julio",
         }));
 
         var resultado = await ClasificarAsync(handler);
@@ -77,9 +76,8 @@ public class ClasificadorOllamaTests
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
             monto = 3500,
-            tipo = "egreso",
+            tipo = EsquemaClasificacion.Salio,
             categoria = "Cripto",
-            descripcion = "compra de cripto",
         }));
 
         var resultado = await ClasificarAsync(handler);
@@ -127,7 +125,6 @@ public class ClasificadorOllamaTests
             monto = 1000,
             tipo = "transferencia",
             categoria = "Hogar",
-            descripcion = "movimiento raro",
         }));
 
         Assert.IsType<ResultadoClasificacion.TipoNoReconocido>(await ClasificarAsync(handler));
@@ -142,9 +139,8 @@ public class ClasificadorOllamaTests
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
             monto,
-            tipo = "egreso",
+            tipo = EsquemaClasificacion.Salio,
             categoria = "Hogar",
-            descripcion = "compra",
         }));
 
         Assert.IsType<ResultadoClasificacion.SinMonto>(await ClasificarAsync(handler));
@@ -156,27 +152,46 @@ public class ClasificadorOllamaTests
     {
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
-            tipo = "egreso",
+            tipo = EsquemaClasificacion.Salio,
             categoria = "Hogar",
-            descripcion = "compra",
         }));
 
         Assert.IsType<ResultadoClasificacion.SinMonto>(await ClasificarAsync(handler));
     }
 
-    // Sad path: el texto no describe ningún movimiento (AC-10).
+    // Sad path (AC-10): el texto no describe ningún movimiento, es un número suelto. Se resuelve
+    // sobre el texto de entrada, sin gastar una llamada al modelo.
+    [Theory]
+    [InlineData("$3.000")]
+    [InlineData("1500")]
+    [InlineData("$ 2.000,50 -")]
+    public async Task ClasificarAsync_SinDescripcion_DevuelveSinDescripcion(string texto)
+    {
+        var handler = HandlerFalso.ConJson(RespuestaCruda("{}"));
+
+        var resultado = await Crear(handler).ClasificarAsync(texto, Activas, CancellationToken.None);
+
+        Assert.IsType<ResultadoClasificacion.SinDescripcion>(resultado);
+        Assert.Equal(0, handler.Llamadas);
+    }
+
+    // Regresión de la medición de accuracy: un mensaje con descripción real no puede caer en
+    // SinDescripcion. Antes se decidía por si el modelo completaba un campo del JSON, y eso
+    // convertía mensajes bien clasificados en errores.
     [Fact]
-    public async Task ClasificarAsync_SinDescripcion_DevuelveSinDescripcion()
+    public async Task ClasificarAsync_TextoConDescripcion_NoDevuelveSinDescripcion()
     {
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
-            monto = 1000,
-            tipo = "egreso",
-            categoria = "Hogar",
-            descripcion = "",
+            monto = 25000,
+            tipo = EsquemaClasificacion.Salio,
+            categoria = "Otros",
         }));
 
-        Assert.IsType<ResultadoClasificacion.SinDescripcion>(await ClasificarAsync(handler));
+        var resultado = await Crear(handler).ClasificarAsync(
+            "Regalo de cumpleaños para mi hermana, 25.000", Activas, CancellationToken.None);
+
+        Assert.IsType<ResultadoClasificacion.Clasificado>(resultado);
     }
 
     // Sad path del error documentado: clasificar sin categorías es un error de programación, no
@@ -200,9 +215,8 @@ public class ClasificadorOllamaTests
         var handler = HandlerFalso.ConJson(RespuestaCon(new
         {
             monto = 10000,
-            tipo = "ingreso",
+            tipo = EsquemaClasificacion.Entro,
             categoria = "Sueldo",
-            descripcion = "sueldo",
         }));
 
         await ClasificarAsync(handler);
@@ -210,5 +224,8 @@ public class ClasificadorOllamaTests
         var pedido = Assert.Single(handler.Pedidos);
         Assert.Contains("\"enum\"", pedido, StringComparison.Ordinal);
         Assert.Contains("Sueldo", pedido, StringComparison.Ordinal);
+        // M-01 no se sostiene si el system prompt no viaja como tal: sin instrucciones, el
+        // modelo clasifica a ciegas y el schema es lo único que lo contiene.
+        Assert.Contains("\"role\":\"system\"", pedido, StringComparison.Ordinal);
     }
 }

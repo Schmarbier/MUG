@@ -5,12 +5,17 @@ using PersonalFinance.Infrastructure.Ollama;
 using PersonalFinance.Infrastructure.Tests.Datos;
 using PersonalFinance.Infrastructure.Tests.Integracion;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PersonalFinance.Infrastructure.Tests;
 
 public class AccuracyClasificadorTests
 {
     private const double AccuracyMinima = 0.80;
+
+    private readonly ITestOutputHelper _salida;
+
+    public AccuracyClasificadorTests(ITestOutputHelper salida) => _salida = salida;
 
     internal static ClasificadorOllama CrearContraOllamaReal()
     {
@@ -92,6 +97,10 @@ public class AccuracyClasificadorTests
         }
 
         var accuracy = (double)aciertos / dataset.Count;
+
+        // Se informa siempre, no sólo al fallar: el margen contra el mínimo es lo que dice si el
+        // clasificador está holgado o al borde.
+        _salida.WriteLine($"Accuracy {accuracy:P1} ({aciertos}/{dataset.Count}), mínimo {AccuracyMinima:P0}.");
 
         Assert.True(
             accuracy >= AccuracyMinima,
