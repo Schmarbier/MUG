@@ -15,4 +15,8 @@
     <ProjectReference Include="..\..\src\PersonalFinance.Infrastructure\PersonalFinance.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Datos\mensajes-etiquetados.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -13,6 +13,12 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!--
+      Excluye de la corrida por defecto los tests marcados Categoria=Integracion, que necesitan
+      Ollama levantado. Sólo tiene efecto en proyectos de test.
+    -->
+    <RunSettingsFilePath>$(MSBuildThisFileDirectory)tests.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
 </Project>
