@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+
+  <!--
+    Corrida de los tests de integración: los que miden accuracy y latencia contra Ollama real.
+    Requiere Ollama levantado con el modelo descargado.
+
+        ollama serve
+        ollama pull llama3.1
+        dotnet test  (pasándole este archivo con la opción settings)
+
+    Va por un segundo archivo de settings y no por un filtro de línea de comandos porque VSTest
+    combina el filtro de la línea con el TestCaseFilter de tests.runsettings usando AND, y la
+    combinación `Categoria!=Integracion & Categoria=Integracion` no selecciona ningún test. La
+    opción settings de la línea de comandos, en cambio, sí reemplaza al archivo por defecto.
+  -->
+  <RunConfiguration>
+    <TestCaseFilter>Categoria=Integracion</TestCaseFilter>
+  </RunConfiguration>
+
+</RunSettings>

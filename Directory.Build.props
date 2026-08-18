@@ -1,0 +1,24 @@
+<Project>
+
+  <!--
+    Convenciones transversales de AGENTS.md -> Code conventions.
+    Se declaran una sola vez acá para que ningún .csproj pueda olvidarlas.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!--
+      Excluye de la corrida por defecto los tests marcados Categoria=Integracion, que necesitan
+      Ollama levantado. Sólo tiene efecto en proyectos de test.
+    -->
+    <RunSettingsFilePath>$(MSBuildThisFileDirectory)tests.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
+</Project>

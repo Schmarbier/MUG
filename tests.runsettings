@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+
+  <!--
+    `dotnet test` sin filtro no debe requerir Ollama levantado. Los dos tests que miden accuracy
+    y latencia contra el modelo real están marcados con Categoria=Integracion y se excluyen acá,
+    para que la corrida por defecto quede en verde con Ollama apagado.
+
+    Para correrlos, con Ollama levantado, pasar el filtro Categoria=Integracion por línea de
+    comandos: tiene precedencia sobre este TestCaseFilter.
+  -->
+  <RunConfiguration>
+    <TestCaseFilter>Categoria!=Integracion</TestCaseFilter>
+  </RunConfiguration>
+
+</RunSettings>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    AGENTS.md -> Architecture conventions: el dominio no referencia ningún otro proyecto de la
+    solución ni ningún paquete de infraestructura. Solo BCL.
+    Este archivo no debe contener PackageReference ni ProjectReference.
+  -->
+
+</Project>
