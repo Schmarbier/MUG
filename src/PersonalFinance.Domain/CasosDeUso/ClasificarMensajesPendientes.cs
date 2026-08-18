@@ -104,7 +104,7 @@ public sealed class ClasificarMensajesPendientes
                 // guardan juntos, o no se guarda ninguno.
                 await _unitOfWork.ConfirmarAsync(cancellationToken);
             }
-            catch (Exception)
+            catch (Exception excepcion) when (excepcion is not OperationCanceledException)
             {
                 // No se confirmó: no quedó ni movimiento ni cambio de estado. Se corta la
                 // corrida en vez de seguir con el próximo mensaje, porque la unidad de trabajo
