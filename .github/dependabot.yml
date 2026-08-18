@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # NuGet con Central Package Management: las versiones viven en Directory.Packages.props,
+  # en la raíz del repo (junto al .sln), no en cada .csproj.
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Mantiene al día actions/checkout, actions/setup-dotnet, etc. usadas en ci.yml.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
