@@ -19,9 +19,8 @@ public class MovimientoTests
             tipo: TipoMovimiento.Ingreso,
             fechaCreacion: FechaCreacion);
 
-        // ROTO A PROPOSITO para probar el ruleset (chore/ci) — revertir después.
         Assert.Equal(
-            (999L, 4, 10000m, TipoMovimiento.Ingreso, FechaCreacion),
+            (42L, 4, 10000m, TipoMovimiento.Ingreso, FechaCreacion),
             (movimiento.MensajeId, movimiento.CategoriaId, movimiento.Monto, movimiento.Tipo, movimiento.FechaCreacion));
     }
 
