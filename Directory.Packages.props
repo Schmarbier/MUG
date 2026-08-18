@@ -23,7 +23,7 @@
 
   <!-- Adaptadores externos -->
   <ItemGroup>
-    <PackageVersion Include="Telegram.Bot" Version="22.10.2" />
+    <PackageVersion Include="Telegram.Bot" Version="22.10.2.1" />
     <PackageVersion Include="OllamaSharp" Version="5.4.27" />
   </ItemGroup>
 
