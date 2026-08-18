@@ -1,0 +1,43 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!--
+      Con el pineo transitivo activado, la versión declarada acá también manda sobre las
+      dependencias que arrastran otros paquetes. Es lo que hace efectivo el pin de
+      SQLitePCLRaw (M-05 / CVE-2025-6965): sin esto, EF Core Sqlite impondría la suya.
+    -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <!-- Persistencia -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
+    <!--
+      M-05 (threat model): CVE-2025-6965 en SQLitePCLRaw < 3.0.3. Se pinea explícitamente
+      en vez de heredar la versión que arrastre Microsoft.EntityFrameworkCore.Sqlite.
+    -->
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+  </ItemGroup>
+
+  <!-- Adaptadores externos -->
+  <ItemGroup>
+    <PackageVersion Include="Telegram.Bot" Version="22.10.2" />
+    <PackageVersion Include="OllamaSharp" Version="5.4.27" />
+  </ItemGroup>
+
+  <!-- Composition root -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+  </ItemGroup>
+
+  <!-- Tests -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+</Project>

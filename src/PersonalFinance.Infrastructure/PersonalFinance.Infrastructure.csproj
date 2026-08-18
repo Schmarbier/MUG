@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Adaptadores. Referencia a Domain; Domain nunca referencia acá (AGENTS.md -> Architecture
+    conventions). El Bloque 3 agrega Telegram.Bot y el Bloque 4 OllamaSharp.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <!-- M-05 (threat model): pin explícito por CVE-2025-6965. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+    <PackageReference Include="Telegram.Bot" />
+    <PackageReference Include="OllamaSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PersonalFinance.Domain\PersonalFinance.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
